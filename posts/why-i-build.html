@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>无人机项目里，那些没写进 PPT 的坑 · 小王同学</title>
+<meta name="description" content="从机库接入到影像分发，方案之外的真实细节。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23EA580C'/%3E%3Ccircle cx='16' cy='17' r='6' fill='%23F2EFE9'/%3E%3Ccircle cx='9' cy='9' r='3.4' fill='%23F2EFE9'/%3E%3Ccircle cx='23' cy='9' r='3.4' fill='%23F2EFE9'/%3E%3Ccircle cx='14' cy='16' r='1.1' fill='%230B0B0D'/%3E%3Ccircle cx='18' cy='16' r='1.1' fill='%230B0B0D'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/post.css">
+</head>
+<body>
+<canvas id="veins" aria-hidden="true" style="opacity:1"></canvas>
+
+<article class="post-wrap">
+  <a class="back" href="../index.html">← 回首页</a>
+
+  <div class="post-meta">
+    <span>2026.11.13</span>
+    <span class="tag">行业</span>
+    <span>约 5 分钟</span>
+  </div>
+
+  <h1>无人机项目里，那些没写进 PPT 的坑</h1>
+
+  <div class="post-body">
+    <p>方案里的无人机永远准时起飞、画面永远清晰、AI 永远识别正确。落地的时候不是这样。下面这些是真实踩过的。</p>
+
+    <h2>一、机库不是插上电就能用</h2>
+    <p>机库统一接入最耗时间的不是协议对接，是<strong>网络</strong>。很多点位在山上、在田里、在楼顶，4G 信号看着有两格，实际上行带宽跑不动一路视频流。</p>
+    <ul>
+      <li>先测上行带宽，再谈视频分辨率。反过来的方案一定改。</li>
+      <li>机库自带的图传/回传配置，出厂默认值往往按理想环境调。</li>
+      <li>断电重启策略要写进交付文档——现场运维人员的平均操作水平，比你想象的低。</li>
+    </ul>
+
+    <h2>二、航线规划里的"安全高度"是个伪命题</h2>
+    <p>地形数据、限飞区、临时管制通告，三者的更新频率完全不同步。方案里写"自动避障"，实际是"在你恰好采过的地形数据范围内避障"。</p>
+    <blockquote>凡是"自动"的能力，都要在验收标准里写清楚：在多大概率、什么条件下失效。</blockquote>
+
+    <h2>三、影像处理是个吞时间的黑洞</h2>
+    <p>一堆照片变成正射影像再变成三维模型，中间卡的地方通常不是算法，是<strong>磁盘 IO 和内存</strong>。跑一次空三，2 核 2G 的机器能跑到天亮。</p>
+    <p>给客户报价时，一定要把"算力"单独列一行。不列，后面就是你自己掏钱加配置。</p>
+
+    <h2>四、AI 识别上线之后才是开始</h2>
+    <p>模型在测试集上 95%，到现场掉到 70%，原因通常很朴实：光照、角度、遮挡、以及"这压根不是训练集里那种目标"。</p>
+    <p>所以监管类系统的验收，最好别只看准确率，看<strong>误报被处理掉需要多久</strong>——那才是业务真正关心的数字。</p>
+
+    <hr>
+    <p>写这些不是要唱衰，恰恰相反：把这些坑提前讲清楚，项目反而更容易成。方案写得漂亮不难，难的是让它在第三个季度还能跑起来。</p>
+  </div>
+
+  <div class="post-end">
+    <span>© 2026 小王同学</span>
+    <a href="../index.html">继续读下一篇 →</a>
+  </div>
+</article>
+</body>
+</html>
