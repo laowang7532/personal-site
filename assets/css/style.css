@@ -58,6 +58,14 @@ code{font-family:var(--mono);font-size:.88em;color:var(--orange);background:var(
 }
 #loader.done{display:none}
 
+/* JS 失效兜底：脚本正常时由 html.js 关掉这两条动画；一旦 JS 报错，
+   这个类会被移除，页面会自动恢复可见，不会永远黑屏 */
+#loader{animation:failSafeHide 1ms 2800ms forwards}
+.reveal{animation:failSafeShow 1ms 3000ms forwards}
+html.js #loader,html.js .reveal{animation:none}
+@keyframes failSafeHide{to{opacity:0;visibility:hidden}}
+@keyframes failSafeShow{to{opacity:1;transform:none}}
+
 .sheet{
   position:absolute;inset:0;
   background:var(--bg);

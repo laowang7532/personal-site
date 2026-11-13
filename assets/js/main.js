@@ -5,6 +5,12 @@
 (function () {
   'use strict';
 
+  // 标记「JS 已接管」，让 CSS 里的兜底动画失效；任何报错则撤掉标记，页面自动恢复可见
+  document.documentElement.classList.add('js');
+  window.addEventListener('error', () => {
+    document.documentElement.classList.remove('js');
+  });
+
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const isTouch = window.matchMedia('(hover: none)').matches;
 
