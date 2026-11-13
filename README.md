@@ -52,18 +52,18 @@ python3 -m http.server 8080
 ### 更新流程（由 AI 代劳，用户只需说"更新"）
 
 1. 本地改文件 → `git add -A && git commit && git push`
-2. 服务器上拉取并同步：
+2. 服务器上从 **jsDelivr CDN** 拉取最新文件（北京机器直连 GitHub 会被 TLS 干扰，`git pull` 常失败）：
 
 ```bash
-cd /var/www/personal-site && git pull -q
-cp index.html /usr/share/caddy/index.html
-cp -r /var/www/personal-site/assets/. /usr/share/caddy/assets/
-cp -r /var/www/personal-site/posts/.  /usr/share/caddy/posts/
-cp -r /var/www/personal-site/docs/.   /usr/share/caddy/docs/
+# 站点根目录 /usr/share/caddy 直接覆盖，/var/www/personal-site 做镜像
+for f in index.html posts/xxx.html assets/css/style.css assets/css/post.css assets/js/main.js; do
+  curl -s -o /usr/share/caddy/$f "https://cdn.jsdelivr.net/gh/laowang7532/personal-site@main/$f"
+done
 ```
 
-> 注意 `源目录/. 目标目录/` 的写法，写成 `cp -r assets /usr/share/caddy/assets` 会多套一层变成 `assets/assets`。
-> Caddy 用的是出厂默认配置（root 指向 `/usr/share/caddy`），所以同步落在这里。想改成指向 `/var/www/personal-site`，需要在服务器上改 `/etc/caddy/Caddyfile`。
+> 为什么不用 `git pull`：从北京到 GitHub 的 HTTPS 连接经常被中断（`GnuTLS recv error -110`），
+> jsDelivr 走 CDN 稳定且快。改动 push 后 CDN 几分钟内自动刷新。
+> 目录型同步注意 `源目录/. 目标目录/` 的写法，写成 `cp -r assets /usr/share/caddy/assets` 会多套一层。
 
 ### 换到别的地方
 
