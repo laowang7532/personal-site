@@ -56,6 +56,88 @@
 }
 .post-body hr{border:none;border-top:1px solid var(--line);margin:44px 0}
 
+/* 导语 */
+.post-lede{
+  color:var(--ink-2);font-size:17px;line-height:1.85;
+  max-width:40em;margin:-6px 0 8px;
+}
+
+/* 目录 */
+.toc{
+  margin:34px 0 10px;padding:20px 22px;
+  background:var(--bg-soft);border:1px solid var(--line);border-radius:14px;
+}
+.toc b{
+  display:block;font-family:var(--mono);font-size:11px;letter-spacing:.16em;
+  color:var(--ink-3);margin-bottom:10px;
+}
+.toc a{
+  display:inline-block;margin:0 18px 6px 0;font-size:13.5px;
+  color:var(--ink-2);border-bottom:none;
+}
+.toc a:hover{color:var(--orange)}
+
+/* 表格 */
+.post-body table{
+  width:100%;border-collapse:collapse;margin:4px 0 28px;font-size:14.2px;
+}
+.post-body th,.post-body td{
+  text-align:left;padding:11px 12px;vertical-align:top;
+  border-bottom:1px solid rgba(242,239,233,.06);color:#CFCAC1;
+}
+.post-body th{
+  color:var(--ink-3);font-weight:500;font-size:12px;
+  font-family:var(--mono);letter-spacing:.08em;white-space:nowrap;
+}
+.post-body td:first-child{color:var(--ink);white-space:nowrap}
+.post-body td code{white-space:nowrap}
+
+/* 提示块 */
+.post-body .note{
+  background:var(--bg-soft);border:1px solid var(--line);
+  border-left:2px solid var(--orange);border-radius:10px;
+  padding:16px 18px;margin:24px 0;
+}
+.post-body .note p{margin-bottom:0;font-size:15px}
+.post-body .note b{color:var(--orange)}
+
+/* 链条 / 标签 */
+.chain{
+  display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+  margin:22px 0 28px;font-size:13.5px;
+}
+.chain i{color:var(--ink-3);font-style:normal}
+.chip{
+  padding:6px 13px;border-radius:999px;
+  border:1px solid var(--line);background:var(--bg-soft);color:var(--ink-2);
+}
+.chip.on{border-color:rgba(63,185,80,.5);color:#3FB950}
+.chip.next{border-color:rgba(234,88,12,.5);color:var(--orange)}
+
+/* 编号步骤 */
+.post-body .steps{counter-reset:s;list-style:none;margin-left:0}
+.post-body .steps li{
+  position:relative;padding-left:44px;margin-bottom:22px;
+}
+.post-body .steps li::before{
+  counter-increment:s;content:counter(s,decimal-leading-zero);
+  position:absolute;left:0;top:2px;
+  font-family:var(--mono);font-size:12px;color:var(--orange);
+  border:1px solid var(--line);border-radius:8px;padding:3px 7px;
+}
+.post-body .steps b{display:block;color:var(--ink);font-weight:600;margin-bottom:2px;font-size:15.5px}
+.post-body .steps span{color:var(--ink-2);font-size:14.5px}
+.done{
+  color:#3FB950;font-family:var(--mono);font-size:11.5px;
+  margin-left:6px;font-weight:400;
+}
+
+@media (max-width:620px){
+  .post-body table{font-size:13px}
+  .post-body th,.post-body td{padding:9px 8px}
+  .post-body td:first-child,.post-body td code{white-space:normal}
+}
+
 .post-end{
   margin-top:56px;padding-top:26px;border-top:1px solid var(--line);
   display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;

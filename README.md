@@ -13,7 +13,10 @@ personal-site/
 │   ├── js/main.js          加载动画、背景纹络、光标、滚动入场、贴纸
 │   └── photos/             照片墙的图片放这里
 ├── posts/                  文章页（每篇一个 html）
-└── docs/web-101.html       建站名词与流程科普（可删）
+│   ├── web-101.html        建站名词与流程（第一篇，原 docs 内容迁入）
+│   ├── hello-world.html    为什么要有自己的网站
+│   └── why-i-build.html    无人机项目里的坑
+└── docs/web-101.html       旧地址，已跳转到 posts/web-101.html
 ```
 
 ## 本地预览
