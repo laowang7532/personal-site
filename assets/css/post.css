@@ -134,7 +134,7 @@
 
 @media (max-width:620px){
   .post-body table{font-size:13px}
-  .post-body th,.post-body td{padding:9px 8px}
+  .post-body th,.post-body td{padding:9px 8px;overflow-wrap:break-word}
   .post-body td:first-child,.post-body td code{white-space:normal}
 }
 
