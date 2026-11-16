@@ -2,6 +2,7 @@
 Thumbs.db
 node_modules/
 dist/
+notes/snapshots/
 *.log
 .DS_Store?
 ._*

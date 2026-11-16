@@ -1,0 +1,527 @@
+/* ============================================================
+   首页专属：加载动画、纹络、光标、跑马灯、照片墙、贴纸
+   静态布局由 UnoCSS 工具类承担，这里只保留伪元素、关键帧与复杂选择器
+   ============================================================ */
+
+/* ---------------- 加载：翻页 ---------------- */
+#loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  perspective: 1500px;
+  perspective-origin: left center;
+  background: var(--bg);
+}
+
+.sheet {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  transform-origin: left center;
+  backface-visibility: hidden;
+  box-shadow: 40px 0 80px var(--shadow-sheet);
+  will-change: transform;
+}
+
+.sheet::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, var(--orange), transparent);
+  opacity: 0.55;
+}
+
+.sheet::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, var(--shadow-sheet-soft), transparent 55%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sheet-b {
+  z-index: -1;
+}
+
+.sheet-inner {
+  text-align: center;
+  padding: 0 24px;
+}
+
+.loader-mark {
+  font-size: clamp(2.4rem, 7vw, 4.4rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+}
+
+.loader-mark.alt {
+  color: var(--orange);
+  letter-spacing: 0.06em;
+  font-weight: 500;
+  font-size: clamp(1.8rem, 5vw, 3rem);
+}
+
+.loader-sub {
+  margin-top: 14px;
+  font-size: 12px;
+  letter-spacing: 0.28em;
+  color: var(--ink-3);
+  text-transform: uppercase;
+}
+
+.loader-line {
+  width: min(220px, 54vw);
+  height: 1px;
+  background: var(--line);
+  margin: 22px auto 0;
+  overflow: hidden;
+}
+
+.loader-line i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--orange);
+  animation: fill 1000ms var(--ease) forwards;
+}
+
+@keyframes fill {
+  to {
+    width: 100%;
+  }
+}
+
+.flip-out {
+  animation: flipOut 780ms cubic-bezier(0.62, 0, 0.2, 1) forwards;
+}
+
+@keyframes flipOut {
+  0% {
+    transform: rotateY(0deg);
+  }
+
+  100% {
+    transform: rotateY(-118deg);
+  }
+}
+
+.flip-out::after {
+  animation: shade 780ms ease forwards;
+}
+
+@keyframes shade {
+  0% {
+    opacity: 0;
+  }
+
+  60% {
+    opacity: 0.5;
+  }
+
+  100% {
+    opacity: 0.95;
+  }
+}
+
+/* ---------------- 背景纹络 ---------------- */
+#veins {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 2.4s ease;
+}
+
+#veins.in {
+  opacity: 1;
+}
+
+/* ---------------- 自定义光标 ---------------- */
+.cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 8000;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--orange);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  mix-blend-mode: difference;
+  transition:
+    width 0.2s,
+    height 0.2s,
+    opacity 0.3s;
+  opacity: 0;
+}
+
+.cursor.on {
+  opacity: 1;
+}
+
+.cursor.grow {
+  width: 34px;
+  height: 34px;
+  background: var(--ink);
+}
+
+/* ---------------- 顶栏导航下划线 ---------------- */
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 1px;
+  width: 0;
+  background: var(--orange);
+  transition: width 0.28s var(--ease);
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* ---------------- Hero 描边序号 ---------------- */
+.hero-index {
+  -webkit-text-stroke: 1px var(--line);
+}
+
+/* ---------------- 按钮 ---------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 26px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 14px;
+  font-weight: 500;
+  transition:
+    transform 0.25s var(--ease),
+    background 0.25s,
+    color 0.25s;
+}
+
+.btn i {
+  font-style: normal;
+  transition: transform 0.25s var(--ease);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn:hover i {
+  transform: translateX(4px);
+}
+
+.btn.ghost {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+
+.btn.ghost:hover {
+  border-color: var(--orange);
+  color: var(--orange);
+}
+
+/* ---------------- 跑马灯 ---------------- */
+.marquee {
+  padding: 16px 0;
+  overflow: hidden;
+  white-space: nowrap;
+  border-top: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line-soft);
+  background: var(--overlay-soft);
+}
+
+.marquee-track {
+  display: inline-flex;
+  align-items: center;
+  gap: 34px;
+  padding-left: 34px;
+  animation: slide 42s linear infinite;
+}
+
+.marquee-track span {
+  font-size: clamp(15px, 2.2vw, 22px);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--ink-2);
+}
+
+.marquee-track b {
+  color: var(--orange);
+  font-size: 13px;
+}
+
+@keyframes slide {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ---------------- 关于卡片 ---------------- */
+.info-card {
+  transition:
+    border-color 0.3s,
+    transform 0.3s var(--ease),
+    background 0.3s;
+}
+
+.info-card:hover {
+  border-color: rgba(var(--orange-rgb), 0.5);
+  transform: translateY(-3px);
+  background: var(--bg-hover);
+}
+
+/* ---------------- 照片墙 ---------------- */
+.tile {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line-soft);
+  border-radius: 14px;
+  cursor: pointer;
+}
+
+.tile .ph {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transition:
+    transform 0.7s var(--ease),
+    filter 0.5s;
+}
+
+.tile .ph::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='90' height='90' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+  opacity: 0.12;
+  mix-blend-mode: overlay;
+}
+
+.tile figcaption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 26px 14px 12px;
+  font-size: 12.5px;
+  color: var(--ink);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.75), transparent);
+  transform: translateY(8px);
+  opacity: 0;
+  transition:
+    opacity 0.35s,
+    transform 0.35s var(--ease);
+}
+
+.tile:hover .ph {
+  transform: scale(1.08);
+}
+
+.tile:hover figcaption {
+  opacity: 1;
+  transform: none;
+}
+
+.t1 {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+.t2 {
+  grid-column: span 1;
+  grid-row: span 1;
+}
+.t3 {
+  grid-column: span 1;
+  grid-row: span 2;
+}
+.t4 {
+  grid-column: span 1;
+  grid-row: span 1;
+}
+.t5 {
+  grid-column: span 1;
+  grid-row: span 1;
+}
+.t6 {
+  grid-column: span 2;
+  grid-row: span 1;
+}
+.t7 {
+  grid-column: span 1;
+  grid-row: span 1;
+}
+.t8 {
+  grid-column: span 1;
+  grid-row: span 1;
+}
+
+/* 占位图的渐变属于图片素材，不算主题色 */
+.t1 .ph {
+  background-image: linear-gradient(150deg, #2b3a4a 0%, #ea580c 130%);
+}
+.t2 .ph {
+  background-image: linear-gradient(40deg, #1d2b3a, #2563eb 150%);
+}
+.t3 .ph {
+  background-image: linear-gradient(210deg, #3a2b22, #8a4a1e 160%);
+}
+.t4 .ph {
+  background-image: linear-gradient(120deg, #22242a, #4a3a55 150%);
+}
+.t5 .ph {
+  background-image: linear-gradient(20deg, #2a2a24, #6b5a2a 150%);
+}
+.t6 .ph {
+  background-image: linear-gradient(160deg, #20242c, #7a3a2a 160%);
+}
+.t7 .ph {
+  background-image: linear-gradient(80deg, #1c2a26, #2a5a4a 150%);
+}
+.t8 .ph {
+  background-image: linear-gradient(200deg, #241f2a, #3a2a4a 150%);
+}
+
+/* ---------------- 博客列表 ---------------- */
+.post-row {
+  transition:
+    background 0.3s,
+    padding 0.3s var(--ease);
+}
+
+.post-row:hover {
+  background: var(--overlay);
+  padding-left: 16px;
+}
+
+/* ---------------- 联系 ---------------- */
+.contact-link {
+  font-size: 15px;
+  color: var(--ink-2);
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 3px;
+  transition:
+    color 0.25s,
+    border-color 0.25s;
+}
+
+.contact-link:hover {
+  color: var(--orange);
+  border-color: var(--orange);
+}
+
+/* ---------------- 贴纸 ---------------- */
+.stickers {
+  position: fixed;
+  inset: 0;
+  z-index: 520;
+  pointer-events: none;
+}
+
+.sticker {
+  position: absolute;
+  width: 78px;
+  height: 78px;
+  pointer-events: auto;
+  cursor: grab;
+  touch-action: none;
+  filter: drop-shadow(0 8px 18px var(--shadow-sticker));
+  transition: transform 0.25s var(--ease);
+}
+
+.sticker:active {
+  cursor: grabbing;
+}
+
+.sticker.dragging {
+  z-index: 60;
+  transform: scale(1.12) rotate(0deg) !important;
+}
+
+.sticker svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.sticker.wiggle svg {
+  animation: wiggle 0.6s ease;
+}
+
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+
+  25% {
+    transform: rotate(-9deg);
+  }
+
+  60% {
+    transform: rotate(7deg);
+  }
+
+  80% {
+    transform: rotate(-3deg);
+  }
+}
+
+.sticker.small {
+  width: 54px;
+  height: 54px;
+}
+
+#bear-follow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 510;
+  width: 56px;
+  height: 56px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s;
+  filter: drop-shadow(0 10px 20px var(--shadow-bear));
+}
+
+/* ---------------- 响应式 ---------------- */
+@media (max-width: 1024px) {
+  .t1 {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+
+  .t3,
+  .t6 {
+    grid-column: span 1;
+    grid-row: span 1;
+  }
+
+  .sticker {
+    width: 62px;
+    height: 62px;
+  }
+
+  #bear-follow {
+    display: none;
+  }
+}
