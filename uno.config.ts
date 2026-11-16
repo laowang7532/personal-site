@@ -96,7 +96,7 @@ export default defineConfig({
   --shadow-sheet:rgba(0,0,0,.6);
   --shadow-sheet-soft:rgba(0,0,0,.55);
   --shadow-sticker:rgba(0,0,0,.45);
-  --shadow-bear:rgba(0,0,0,.5);
+  --shadow-rabbit:rgba(0,0,0,.5);
   --ease:${ease};
   --pad:clamp(20px,4vw,64px);
 }

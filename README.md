@@ -99,6 +99,13 @@ link: /posts/hello-world.html # 可选，草稿指向的占位链接
 里给对应格子加 `image: '/assets/photos/01.jpg'`。不填则保留内置渐变占位图。
 详见 [public/assets/photos/README.md](public/assets/photos/README.md)。
 
+## 贴纸
+
+首页右上角的「贴纸」开关控制跟随兔子和 7 枚可拖拽贴纸（兔子 / 星星 / 花 / 爱心 /
+音符 / 火花），状态记忆在 `localStorage`。贴纸的位置、旋转与移动端隐藏规则在
+`src/composables/useStickers.ts` 的 `stickerDefs` 中调整；矢量图在
+`src/assets/stickers/`。
+
 ## 发布
 
 开发方只 push `main`；发布由 WorkBuddy 定时任务完成。手动发布时：
@@ -131,4 +138,4 @@ commit SHA 与 jsDelivr 地址。服务器按这个 SHA 拉取，**禁止使用 
 - 构建期解析 Markdown，markdown-it 不进入客户端 bundle。
 - UnoCSS 负责常规样式，`src/styles/` 保留 keyframes 与文章正文排版。
 - 每篇文章是真实 HTML 入口，跨页跳转使用 View Transitions。
-- 首屏 JS gzip 约 42 KB、CSS gzip 约 6 KB。
+- 首屏 JS gzip 约 43.6 KB、CSS gzip 约 6.5 KB。

@@ -490,17 +490,172 @@
   height: 54px;
 }
 
-#bear-follow {
+/* 兔子耳朵偶尔抖一下 */
+.rabbit-ear {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+.rabbit-ear-l {
+  animation: rabbit-ear-l 5.6s ease-in-out infinite;
+}
+
+.rabbit-ear-r {
+  animation: rabbit-ear-r 6.3s ease-in-out infinite;
+}
+
+@keyframes rabbit-ear-l {
+  0%,
+  86%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  90% {
+    transform: rotate(-4deg);
+  }
+
+  94% {
+    transform: rotate(1.5deg);
+  }
+}
+
+@keyframes rabbit-ear-r {
+  0%,
+  88%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  92% {
+    transform: rotate(4deg);
+  }
+
+  96% {
+    transform: rotate(-1.5deg);
+  }
+}
+
+#rabbit-follow {
   position: fixed;
   top: 0;
   left: 0;
   z-index: 510;
-  width: 56px;
-  height: 56px;
+  width: 62px;
+  height: 68px;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.5s;
-  filter: drop-shadow(0 10px 20px var(--shadow-bear));
+  filter: drop-shadow(0 10px 20px var(--shadow-rabbit));
+  will-change: transform;
+}
+
+#rabbit-follow svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------------- 贴纸开关 ---------------- */
+.sticker-toggle {
+  position: fixed;
+  top: 70px;
+  right: 20px;
+  bottom: auto;
+  left: auto;
+  z-index: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 11px 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(17, 17, 19, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.32);
+  color: var(--ink-2);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.16em;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  transition:
+    border-color 0.25s,
+    color 0.25s,
+    transform 0.25s var(--ease);
+}
+
+.sticker-toggle:hover {
+  color: var(--ink);
+  border-color: rgba(242, 239, 233, 0.24);
+  transform: translateY(-1px);
+}
+
+.sticker-toggle:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 3px;
+}
+
+.sticker-toggle-icon {
+  display: block;
+  width: 21px;
+  height: 21px;
+  transition:
+    filter 0.25s,
+    opacity 0.25s;
+}
+
+.sticker-toggle-icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.sticker-toggle-label {
+  padding-top: 1px;
+}
+
+.sticker-toggle-track {
+  position: relative;
+  width: 28px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--line);
+  box-shadow: inset 0 0 0 1px rgba(242, 239, 233, 0.04);
+  transition: background 0.25s;
+}
+
+.sticker-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--ink-3);
+  transition:
+    transform 0.25s var(--ease),
+    background 0.25s;
+}
+
+.sticker-toggle[aria-checked='true'] .sticker-toggle-track {
+  background: var(--orange-soft);
+  box-shadow: inset 0 0 0 1px rgba(234, 88, 12, 0.42);
+}
+
+.sticker-toggle[aria-checked='true'] .sticker-toggle-thumb {
+  background: var(--orange);
+  transform: translateX(12px);
+}
+
+.sticker-toggle[aria-checked='false'] .sticker-toggle-icon {
+  filter: grayscale(1);
+  opacity: 0.45;
 }
 
 /* ---------------- 响应式 ---------------- */
@@ -521,7 +676,42 @@
     height: 62px;
   }
 
-  #bear-follow {
+  #rabbit-follow {
     display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .sticker {
+    width: 48px;
+    height: 48px;
+  }
+
+  .sticker.small {
+    width: 42px;
+    height: 42px;
+  }
+
+  /* 小屏留一枚兔子 + 星星 / 花 / 爱心 / 音符 */
+  .sticker:nth-child(2),
+  .sticker:nth-child(3) {
+    display: none;
+  }
+
+  .sticker-toggle {
+    top: 70px;
+    right: 14px;
+    gap: 7px;
+    padding: 5px 9px 5px 6px;
+  }
+
+  .sticker-toggle-label {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rabbit-ear {
+    animation: none;
   }
 }

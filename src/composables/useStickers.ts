@@ -1,5 +1,8 @@
 import { onBeforeUnmount } from 'vue'
-import bear from '@/assets/stickers/bear.svg?raw'
+import flower from '@/assets/stickers/flower.svg?raw'
+import heart from '@/assets/stickers/heart.svg?raw'
+import note from '@/assets/stickers/note.svg?raw'
+import rabbit from '@/assets/stickers/rabbit.svg?raw'
 import spark from '@/assets/stickers/spark.svg?raw'
 import star from '@/assets/stickers/star.svg?raw'
 
@@ -13,14 +16,16 @@ export interface StickerDef {
   small?: boolean
 }
 
-export const bearSvg = bear
+export const rabbitSvg = rabbit
 
 export const stickerDefs: StickerDef[] = [
-  { svg: bear, right: '6%', top: '16%', rot: -9 },
-  { svg: bear, left: '4%', top: '46%', rot: 12, small: true },
-  { svg: spark, right: '16%', bottom: '18%', rot: 8, small: true },
-  { svg: star, left: '12%', bottom: '14%', rot: -14, small: true },
-  { svg: bear, right: '4%', bottom: '42%', rot: 5, small: true },
+  { svg: rabbit, right: '6%', top: '16%', rot: -9 },
+  { svg: spark, right: '18%', top: '34%', rot: 10, small: true },
+  { svg: rabbit, left: '4%', top: '32%', rot: 12, small: true },
+  { svg: heart, right: '4%', bottom: '42%', rot: 5, small: true },
+  { svg: star, left: '2%', top: '24%', rot: -14, small: true },
+  { svg: flower, right: '4%', bottom: '8%', rot: 8, small: true },
+  { svg: note, right: '4%', bottom: '30%', rot: -8, small: true },
 ]
 
 /**
@@ -30,6 +35,7 @@ export const stickerDefs: StickerDef[] = [
 export function useStickerDrag() {
   const rotations = new WeakMap<HTMLElement, number>()
   let element: HTMLElement | null = null
+  let pointerId = -1
   let startX = 0
   let startY = 0
   let originX = 0
@@ -37,9 +43,17 @@ export function useStickerDrag() {
   let dragging = false
   let wiggleTimer = 0
 
+  function release(target: HTMLElement): void {
+    if (pointerId >= 0 && target.hasPointerCapture(pointerId)) {
+      target.releasePointerCapture(pointerId)
+    }
+    pointerId = -1
+  }
+
   function start(event: PointerEvent, def: StickerDef): void {
     const target = event.currentTarget as HTMLElement
     element = target
+    pointerId = event.pointerId
     dragging = true
     target.classList.add('dragging')
     target.setPointerCapture(event.pointerId)
@@ -73,6 +87,7 @@ export function useStickerDrag() {
     const target = element
     element = null
     target.classList.remove('dragging')
+    release(target)
 
     const base = rotations.get(target) ?? 0
     const next = Number((base + (Math.random() - 0.5) * 16).toFixed(1))
@@ -84,7 +99,17 @@ export function useStickerDrag() {
     wiggleTimer = window.setTimeout(() => target.classList.remove('wiggle'), 650)
   }
 
+  /** 关闭贴纸时取消进行中的拖拽，避免再次开启后残留 dragging 状态。 */
+  function cancel(): void {
+    if (!element) return
+    const target = element
+    element = null
+    dragging = false
+    target.classList.remove('dragging')
+    release(target)
+  }
+
   onBeforeUnmount(() => window.clearTimeout(wiggleTimer))
 
-  return { start, move, end }
+  return { start, move, end, cancel }
 }

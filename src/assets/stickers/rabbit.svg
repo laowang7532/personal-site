@@ -1,0 +1,25 @@
+<svg viewBox="0 0 120 132" xmlns="http://www.w3.org/2000/svg">
+  <g class="rabbit-ear rabbit-ear-l">
+    <ellipse cx="42" cy="36" rx="12.5" ry="31" transform="rotate(-11 42 36)" fill="#F2EFE9"/>
+    <ellipse cx="42" cy="36" rx="6" ry="21" transform="rotate(-11 42 36)" fill="#F2B8C6"/>
+  </g>
+  <g class="rabbit-ear rabbit-ear-r">
+    <ellipse cx="78" cy="36" rx="12.5" ry="31" transform="rotate(11 78 36)" fill="#F2EFE9"/>
+    <ellipse cx="78" cy="36" rx="6" ry="21" transform="rotate(11 78 36)" fill="#F2B8C6"/>
+  </g>
+  <ellipse cx="60" cy="112" rx="27" ry="16" fill="#E3DCCE"/>
+  <circle cx="60" cy="82" r="38" fill="#F2EFE9"/>
+  <ellipse cx="36" cy="94" rx="7" ry="4" fill="#F2B8C6" opacity=".7"/>
+  <ellipse cx="84" cy="94" rx="7" ry="4" fill="#F2B8C6" opacity=".7"/>
+  <circle cx="47" cy="78" r="3.4" fill="#2A211C"/>
+  <circle cx="73" cy="78" r="3.4" fill="#2A211C"/>
+  <circle cx="48.2" cy="76.6" r="1.1" fill="#fff"/>
+  <circle cx="74.2" cy="76.6" r="1.1" fill="#fff"/>
+  <path d="M56.4 88h7.2L60 91.2z" fill="#D97A86"/>
+  <path d="M60 91.2v3M60 94.2q-4 4-7.5 0M60 94.2q4 4 7.5 0" stroke="#2A211C" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <rect x="56.7" y="96.5" width="2.8" height="5" rx="1" fill="#FFFDF8" stroke="#D9D2C6" stroke-width=".7"/>
+  <rect x="60.5" y="96.5" width="2.8" height="5" rx="1" fill="#FFFDF8" stroke="#D9D2C6" stroke-width=".7"/>
+  <path d="M30 84H18M30 90l-11 3M90 84h12M90 90l11 3" stroke="#B9B1A4" stroke-width="1.2" stroke-linecap="round" opacity=".8"/>
+  <ellipse cx="45" cy="116" rx="8" ry="5" fill="#F2EFE9" stroke="#DED6C7" stroke-width="1.5"/>
+  <ellipse cx="75" cy="116" rx="8" ry="5" fill="#F2EFE9" stroke="#DED6C7" stroke-width="1.5"/>
+</svg>
