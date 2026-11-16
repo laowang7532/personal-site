@@ -7,7 +7,9 @@ import '@/styles/article.css'
 const props = defineProps<{ slug: string }>()
 
 const post = computed(() => getPost(props.slug))
-const nextHref = computed(() => (post.value?.next ? `/posts/${post.value.next}.html` : '/index.html'))
+const nextHref = computed(() =>
+  post.value?.next ? `/posts/${post.value.next}.html` : '/index.html',
+)
 </script>
 
 <template>

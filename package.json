@@ -18,7 +18,8 @@
     "format": "prettier --write .",
     "typecheck": "vue-tsc --noEmit",
     "new-post": "node scripts/new-post.mjs",
-    "snapshot": "node scripts/snapshot.mjs"
+    "snapshot": "node scripts/snapshot.mjs",
+    "deploy": "node scripts/deploy.mjs"
   },
   "dependencies": {
     "vue": "^3.5.45"

@@ -28,6 +28,8 @@ const links = [
         {{ link.label }}
       </a>
     </nav>
-    <div class="clock font-mono text-[12px] tracking-[.06em] text-ink-3 max-sm:hidden">{{ time }}</div>
+    <div class="clock font-mono text-[12px] tracking-[.06em] text-ink-3 max-sm:hidden">
+      {{ time }}
+    </div>
   </header>
 </template>

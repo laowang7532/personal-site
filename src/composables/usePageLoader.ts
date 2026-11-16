@@ -27,8 +27,7 @@ function markPlayed(): void {
 export function usePageLoader() {
   const played = readPlayed()
   const reduce =
-    typeof window !== 'undefined' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
   const done = ref(false)
   const visible = ref(!played && !reduce)

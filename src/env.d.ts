@@ -6,4 +6,3 @@ declare module '*.svg?raw' {
 }
 
 declare module 'virtual:uno.css'
-

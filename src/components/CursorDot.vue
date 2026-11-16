@@ -57,10 +57,5 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div
-    ref="cursor"
-    class="cursor"
-    :class="{ on: visible, grow }"
-    aria-hidden="true"
-  />
+  <div ref="cursor" class="cursor" :class="{ on: visible, grow }" aria-hidden="true" />
 </template>

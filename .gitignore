@@ -2,6 +2,8 @@
 Thumbs.db
 node_modules/
 dist/
+.vite/
+*.tsbuildinfo
 notes/snapshots/
 *.log
 .DS_Store?

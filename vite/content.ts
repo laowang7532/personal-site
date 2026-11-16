@@ -46,7 +46,11 @@ function createRenderer() {
           const text = new state.Token('text', '', 0)
           text.content = part
           if (index % 2 === 1) {
-            next.push(new state.Token('strong_open', 'strong', 1), text, new state.Token('strong_close', 'strong', -1))
+            next.push(
+              new state.Token('strong_open', 'strong', 1),
+              text,
+              new state.Token('strong_close', 'strong', -1),
+            )
           } else {
             next.push(text)
           }

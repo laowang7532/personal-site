@@ -1,75 +1,134 @@
 # personal-site
 
-小王同学的个人网站。零依赖纯静态站，`git clone` 下来双击 `index.html` 就能看。
+小王同学的个人网站。Vite + Vue 3 + TypeScript + UnoCSS 多页静态站，构建产物直接丢给 Caddy。
 
-## 结构
+线上地址：<http://154.8.177.56/>
+
+## 环境
+
+- Node.js **>= 22.12**（推荐 22 LTS）
+- npm 10+
+- 截图脚本需要本机安装 Chrome / Chromium
+
+## 常用命令
+
+```bash
+npm ci              # 安装依赖（package-lock.json 已提交）
+npm run dev         # 开发服务器，改 md / Vue / CSS 自动热更新
+npm run build       # 生成入口壳 + 类型检查 + 构建到 dist/
+npm run preview     # 本地预览 dist/
+npm run lint        # ESLint，零警告
+npm run format      # Prettier 格式化
+npm run new-post -- <slug> "<标题>"   # 新建文章 md
+npm run snapshot    # 三档宽度批量截图到 notes/snapshots/
+npm run deploy      # 构建 + 推 dist 孤儿分支 + 打印发布 SHA
+```
+
+首次 `npm run dev` / `npm run build` 前会自动执行 `npm run gen`，依据
+`src/content/posts/*.md` 生成 `posts/<slug>.html` 入口壳，不需要手写。
+
+## 目录
 
 ```
 personal-site/
-├── index.html              首页（自我介绍 / 照片墙 / 博客列表 / 联系）
-├── assets/
-│   ├── css/style.css       全站样式（改配色只动 :root 里的变量）
-│   ├── css/post.css        文章页样式
-│   ├── js/main.js          加载动画、背景纹络、光标、滚动入场、贴纸
-│   └── photos/             照片墙的图片放这里
-├── posts/                  文章页（每篇一个 html）
-│   ├── web-101.html        建站名词与流程（第一篇，原 docs 内容迁入）
-│   ├── hello-world.html    为什么要有自己的网站
-│   └── why-i-build.html    无人机项目里的坑
-└── docs/web-101.html       旧地址，已跳转到 posts/web-101.html
+├── index.html                首页入口壳（只挂载 + SEO）
+├── posts/<slug>.html         文章入口壳，由 scripts/gen-entries.mjs 生成
+├── docs/web-101.html         旧地址跳转页（必须保留）
+├── src/
+│   ├── entries/              入口脚本：home.ts / post.ts
+│   ├── pages/                HomePage.vue / PostPage.vue
+│   ├── components/           区块组件 + 动效组件 + article/ArticleToc.vue
+│   ├── composables/          加载动画、纹络、贴纸、滚动入场、时钟
+│   ├── content/posts/*.md    文章唯一内容源（frontmatter + 正文）
+│   ├── styles/               base.css / home.css / article.css
+│   ├── utils/content.ts      构建期读取 md，导出文章列表与详情
+│   └── types/post.ts         Post 类型
+├── scripts/
+│   ├── gen-entries.mjs       生成文章入口壳
+│   ├── new-post.mjs          新建文章
+│   ├── deploy.mjs            构建 → dist 孤儿分支 → 打印 SHA
+│   ├── snapshot.mjs          三档宽度截图
+│   └── lib/posts.mjs         构建期读取 frontmatter
+├── public/assets/photos/     照片墙图片（构建后位于 /assets/photos/）
+├── notes/                    架构、部署、基线截图（不进入构建产物）
+├── vite/                     Markdown 构建插件、旧链接重定向插件
+├── uno.config.ts             design tokens 唯一来源
+└── vite.config.ts            多页入口 / 插件 / 别名
 ```
 
-## 本地预览
+## 写一篇文章
 
 ```bash
-cd personal-site
-python3 -m http.server 8080
-# 打开 http://localhost:8080
+npm run new-post -- my-post "文章标题"
 ```
 
-## 怎么改
+会生成 `src/content/posts/my-post.md`，填好 frontmatter 与正文后：
 
-| 想改什么 | 改哪 |
-|---|---|
-| 站点配色 | `assets/css/style.css` 顶部 `:root` 里的 `--orange` / `--blue` / `--bg` |
-| 大标题「造点东西」 | `index.html` 里 `.display` 那两行 |
-| 自我介绍 | `index.html` 的 `#about` 区块 |
-| 照片墙 | 把图片放进 `assets/photos/`，再把 `index.html` 里对应 `.ph` 的 `background-image` 换成 `url(assets/photos/xxx.jpg)` |
-| 加一篇博客 | 复制 `posts/hello-world.html` 改名，再在 `index.html` 的 `.posts` 列表里加一行 |
-| 贴纸 | `assets/js/main.js` 底部的 `STICKERS` 数组，或者拖动网页里的贴纸 |
+- `npm run dev` 预览；
+- `npm run build` 会生成 `posts/my-post.html` 并自动出现在首页列表；
+- 不想要页面时把 `draft: true` 加上（首页仍可显示预告，构建不产出页面）。
 
-## 部署
+frontmatter 字段：
 
-静态站，任何 web 服务器都能跑。
+```yaml
+title: '文章标题'
+date: '2026-11-16' # 或 null
+status: '即将' # 可选，列表里替代日期显示
+tags: [建站]
+summary: '首页列表摘要'
+lede: '文章页导语' # 可选，缺省用 summary
+minutes: 8 # 预计阅读时间
+order: 4 # 首页排序，越小越靠前
+toc: true # 可选，显示右侧目录
+next: hello-world # 可选，文末下一篇 slug
+draft: false # 可选，草稿不产出页面
+link: /posts/hello-world.html # 可选，草稿指向的占位链接
+```
 
-### 线上地址
+正文是 markdown-it 渲染的 Markdown，支持原始 HTML。标题锚点写法：
 
-| 用途 | 地址 |
-|---|---|
-| 主站（腾讯云轻量） | http://154.8.177.56/ |
-| 备用（GitHub Pages，自带 HTTPS、免备案） | https://laowang7532.github.io/personal-site/ |
+```md
+## 第一节 {#first}
+```
 
-### 更新流程（由 AI 代劳，用户只需说"更新"）
+`toc: true` 时，带 `{#id}` 的二级标题会进入目录。
 
-1. 本地改文件 → `git add -A && git commit && git push`
-2. 服务器上从 **jsDelivr CDN** 拉取最新文件（北京机器直连 GitHub 会被 TLS 干扰，`git pull` 常失败）：
+## 照片墙
+
+图片放 `public/assets/photos/`，然后在 `src/components/PhotoWall.vue` 的 `tiles`
+里给对应格子加 `image: '/assets/photos/01.jpg'`。不填则保留内置渐变占位图。
+详见 [public/assets/photos/README.md](public/assets/photos/README.md)。
+
+## 发布
+
+开发方只 push `main`；发布由 WorkBuddy 定时任务完成。手动发布时：
 
 ```bash
-# 站点根目录 /usr/share/caddy 直接覆盖，/var/www/personal-site 做镜像
-for f in index.html posts/xxx.html assets/css/style.css assets/css/post.css assets/js/main.js; do
-  curl -s -o /usr/share/caddy/$f "https://cdn.jsdelivr.net/gh/laowang7532/personal-site@main/$f"
-done
+npm run deploy
 ```
 
-> 为什么不用 `git pull`：从北京到 GitHub 的 HTTPS 连接经常被中断（`GnuTLS recv error -110`），
-> jsDelivr 走 CDN 稳定且快。改动 push 后 CDN 几分钟内自动刷新。
-> 目录型同步注意 `源目录/. 目标目录/` 的写法，写成 `cp -r assets /usr/share/caddy/assets` 会多套一层。
+脚本会构建、把 `dist/` 写成 `dist` 孤儿分支的一个根提交并推送，最后打印
+commit SHA 与 jsDelivr 地址。服务器按这个 SHA 拉取，**禁止使用 `@main`**
+（CDN 缓存可能长达 12 小时）。
 
-### 换到别的地方
+完整步骤、回滚与常见故障见 [notes/DEPLOY.md](notes/DEPLOY.md)。
 
-Vercel / Cloudflare Pages / GitHub Pages 都行，推上去就有地址（GitHub Pages 已启用）。
+## 约束（不要改）
 
-## 生态位说明
+- Caddy 配置在 `/etc`，不可修改；不能依赖 `try_files` 或 history 路由。
+- 文章 URL 必须保持 `/posts/<slug>.html`，不能去掉 `.html`。
+- 服务器在北京，直连 GitHub 的 HTTPS 会被干扰，只能用 jsDelivr。
+- 线上只有 HTTP（443 未开放）。
 
-这是"先跑起来"的第一版：单页 + 手写 HTML，改起来最直观。
-等内容多到十几个页面、想要标签和 RSS 时，再迁到 Astro 或 Next.js，那时候结构和现在这套 CSS 都能直接复用。
+## 视觉基线
+
+`notes/baseline/` 是 v1 的 15 张基线截图（5 页 × 1280 / 768 / 500）。
+重构后用 `npm run snapshot` 生成 `notes/snapshots/` 对照；首页动态元素
+（时钟、随机纹络）会有少量像素差，布局应保持 0px 偏差。
+
+## 技术说明
+
+- 构建期解析 Markdown，markdown-it 不进入客户端 bundle。
+- UnoCSS 负责常规样式，`src/styles/` 保留 keyframes 与文章正文排版。
+- 每篇文章是真实 HTML 入口，跨页跳转使用 View Transitions。
+- 首屏 JS gzip 约 42 KB、CSS gzip 约 6 KB。

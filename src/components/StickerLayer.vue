@@ -1,11 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
-import {
-  bearSvg,
-  stickerDefs,
-  useStickerDrag,
-  type StickerDef,
-} from '@/composables/useStickers'
+import { bearSvg, stickerDefs, useStickerDrag, type StickerDef } from '@/composables/useStickers'
 
 const drag = useStickerDrag()
 const layer = ref<HTMLElement | null>(null)

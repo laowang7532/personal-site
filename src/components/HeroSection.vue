@@ -21,7 +21,9 @@
           东西<span class="dot text-orange">.</span>
         </span>
       </h1>
-      <p class="lede reveal mt-[34px] max-w-[34em] text-[clamp(15px,2vw,18px)] leading-[1.85] text-ink-2">
+      <p
+        class="lede reveal mt-[34px] max-w-[34em] text-[clamp(15px,2vw,18px)] leading-[1.85] text-ink-2"
+      >
         白天给无人机写方案，晚上给浏览器写样式。<br />这里放一些作品、照片和没处说的想法。
       </p>
       <div class="hero-actions reveal mt-[38px] flex flex-wrap gap-[14px]">

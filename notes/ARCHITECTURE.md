@@ -1,26 +1,39 @@
 # 架构说明
 
-> 状态：v2 迁移中（批次 0 已完成）。本文档随批次推进补全。
+> 状态：v2 已落地（批次 0–4）。线上仍由 WorkBuddy 定时任务发布。
 
 ## 1. 为什么是 MPA
 
 线上 Caddy 的配置不可修改，不能依赖 `try_files` 回退，也不能使用 history 路由。因此每篇文章必须在构建期输出真实的
 `posts/<slug>.html`，URL 与 v1 完全一致。Vite 多入口天然满足这一点，且不需要引入 SSR / SSG 框架。
 
-## 2. 目录职责（规划）
+代价是每次跳转整页刷新，用 **Cross-Document View Transitions** 补观感：
 
-| 目录 | 职责 |
-|---|---|
-| `index.html`、`posts/*.html` | 极薄入口壳，只负责挂载与 SEO 元信息；由 `scripts/gen-entries.mjs` 依据 md 自动生成 |
-| `src/entries/` | 入口脚本，读取入口壳上的数据并挂载对应页面组件 |
-| `src/pages/` | 页面级组件（首页、文章页） |
-| `src/components/` | 可复用组件（加载动画、纹络、贴纸、各内容区块） |
-| `src/composables/` | 有状态、有副作用的逻辑（加载、纹络、贴纸、滚动入场） |
-| `src/content/posts/` | 文章正文 + frontmatter，唯一内容源 |
-| `src/styles/` | UnoCSS 难以覆盖的全局样式（keyframes、滚动条、v-html 正文排版） |
-| `src/utils/content.ts` | 构建期读取 md，产出文章列表与详情 |
-| `scripts/` | 构建期工具：生成入口、新建文章、发布、截图 |
-| `notes/` | 内部文档与基线截图，不进入构建产物 |
+```css
+@view-transition {
+  navigation: auto;
+}
+```
+
+Chromium / Safari 生效，Firefox 自动降级为普通跳转。
+
+## 2. 目录职责
+
+| 路径                         | 职责                                                                                          |
+| ---------------------------- | --------------------------------------------------------------------------------------------- |
+| `index.html`、`posts/*.html` | 极薄入口壳，只负责挂载与 SEO 元信息；`posts/*.html` 由 `scripts/gen-entries.mjs` 依据 md 生成 |
+| `src/entries/`               | 入口脚本，读取入口壳上的 `data-page` / `data-slug` 并挂载对应页面                             |
+| `src/pages/`                 | 页面级组件：`HomePage.vue`、`PostPage.vue`                                                    |
+| `src/components/`            | 可复用组件：加载动画、纹络、光标、贴纸、各内容区块、文章目录                                  |
+| `src/composables/`           | 有状态、有副作用的逻辑：加载、纹络、贴纸、滚动入场、时钟                                      |
+| `src/content/posts/`         | 文章正文 + frontmatter，唯一内容源                                                            |
+| `src/styles/`                | UnoCSS 难以覆盖的全局样式：reset、grain、keyframes、文章正文排版                              |
+| `src/utils/content.ts`       | 构建期读取 md，产出文章列表与详情                                                             |
+| `vite/content.ts`            | Markdown 构建插件：gray-matter + markdown-it + 自定义规则                                     |
+| `vite/legacy-redirect.ts`    | 原样输出 `docs/web-101.html`，避免 Vite 改写旧链接页                                          |
+| `scripts/`                   | 构建期工具：生成入口、新建文章、发布、截图                                                    |
+| `public/`                    | 原样复制到 dist 的静态资源（照片）                                                            |
+| `notes/`                     | 内部文档与基线截图，不进入构建产物                                                            |
 
 ## 3. 数据流
 
@@ -28,26 +41,98 @@
 src/content/posts/*.md
         │  (构建期：gray-matter 解析 frontmatter，markdown-it 渲染正文)
         ▼
-src/utils/content.ts  ──►  HomePage / PostPage  ──►  dist/*.html + assets
-        ▲
-scripts/gen-entries.mjs ──► posts/<slug>.html 入口壳
+vite/content.ts ──► ?markdown 模块 ──► src/utils/content.ts
+                                              │
+                    ┌─────────────────────────┴─────────────────────────┐
+                    ▼                                                   ▼
+               HomePage.vue                                        PostPage.vue
+                    │                                                   │
+                    └──────────────► dist/index.html / posts/*.html ◄────┘
+
+scripts/gen-entries.mjs ──► posts/<slug>.html 入口壳（构建前自动执行）
 ```
 
 Markdown 解析发生在构建期，markdown-it 不进入客户端 bundle；首屏只包含 Vue 运行时与渲染后的正文。
 
-## 4. 动效边界
+## 4. 样式与 design tokens
 
-| 动效 | 出现位置 | 说明 |
-|---|---|---|
-| 翻页加载 | 首页首次进入 | `sessionStorage` 记录会话内已播放，文章页不播放 |
-| 渐变纹络 | 首页 | canvas 随机生成，截图对比时排除 |
-| 自定义光标 / 跟随小熊 | 首页桌面端 | 触屏与 reduced-motion 不启用 |
-| 可拖拽贴纸 | 首页 | 位置与 v1 一致 |
-| 滚动入场 | 首页 | 与 v1 相同的 IntersectionObserver 逻辑 |
+- `uno.config.ts` 是**唯一**的配色、字体、缓动、断点来源；`theme.colors` 与服务端渲染的
+  CSS 变量（`--ink-rgb`、`--orange-rgb`、`--line-table` 等）都由它生成。
+- 常规布局、间距、响应式用 UnoCSS 原子类；以下内容放在 `src/styles/`：
+  - `base.css`：reset、border preflight、grain、`.reveal`、View Transitions、reduced-motion；
+  - `home.css`：加载动画、首页区块、marquee、照片墙、贴纸、光标、1024px 响应式；
+  - `article.css`：v1 `post.css` 的等价迁移，作用域限定在 `.post-wrap` / `.post-body` / `.article-content`。
+- 正文排版（表格、引用、代码、`.note`、`.steps`、`.chain`）属于 `v-html` 内容，只能靠全局
+  CSS 选择器，因此不拆成 Uno 原子类。
+- 命名为 `text-xs` 一类会附带默认行高的 Uno 工具类不要用在需要精确复刻 v1 的位置，
+  统一用 `text-[12px]` 这类任意值，避免 1px 基线漂移。
 
-## 5. 待补
+## 5. 文章渲染与目录
 
-- 批次 1：工程骨架与 design tokens 说明
-- 批次 2：首页组件边界与 UnoCSS 使用约定
-- 批次 3：文章渲染与目录生成规则
-- 批次 4：构建、部署、回滚流程（另见 `notes/DEPLOY.md`）
+- `src/content/posts/*.md` 的 frontmatter 决定列表展示、排序、是否产出页面：
+  `draft: true` 的条目只出现在首页列表，不生成入口；`order` 升序，草稿永远排最后。
+- `vite/content.ts` 在构建期把 md 转成 `Post` 对象，通过 `?markdown` 查询串交给
+  `import.meta.glob(..., { eager: true })`，因此运行时没有 Markdown 解析器。
+- 标题锚点使用 `## 标题 {#id}`；`heading_anchors` 规则剥掉 `{#id}`，写入 `id`，并把
+  二级标题收集为 `headings`。只有 frontmatter `toc: true` 且存在 headings 时才渲染目录。
+- `cjk_strong` 规则修复 CommonMark 的中文加粗边界问题：当闭合 `**` 前是中文标点、后是
+  中文字符时，CommonMark 不识别为强调，页面会漏出字面量星号；该规则只处理文本 token，
+  不碰代码块。
+- 旧链接 `docs/web-101.html` 含 canonical、meta refresh 与兜底 `<a>`；它作为静态文件
+  由 `legacyRedirectPlugin` 在 `generateBundle` 阶段原样写入，避免被 Vite 当成入口改写。
+
+## 6. 组件与动效边界
+
+| 动效                  | 出现位置     | 实现                                                             |
+| --------------------- | ------------ | ---------------------------------------------------------------- |
+| 翻页加载              | 首页首次进入 | `usePageLoader`，`sessionStorage` 记录会话内已播放；文章页不播放 |
+| 渐变纹络              | 首页         | `useVeins` + canvas，曲线算法与 v1 一致；reduced-motion 画静态帧 |
+| 自定义光标 / 跟随小熊 | 首页桌面端   | `CursorDot.vue` + `useCursor`；触屏与 reduced-motion 不启用      |
+| 可拖拽贴纸            | 首页         | `useStickers`，五个贴纸的位置/旋转与 v1 一致                     |
+| 滚动入场              | 首页         | `useReveal`，IntersectionObserver，阈值与延迟与 v1 一致          |
+
+首页区块组件只负责结构与 Uno 类，不直接操作 DOM；动效统一由 `composables/` 管理，
+方便在文章页复用时不带首页副作用。
+
+## 7. 构建与发布
+
+```
+npm run build
+  ├─ prebuild: npm run gen        生成 posts/<slug>.html
+  ├─ vue-tsc --noEmit             类型检查
+  └─ vite build                   多入口构建到 dist/
+        ├─ dist/index.html
+        ├─ dist/posts/*.html
+        ├─ dist/docs/web-101.html
+        └─ dist/assets/*.{js,css}
+```
+
+`npm run deploy` 在构建后写入 `dist/release.json`（文件清单），把 `dist/` 提交到
+`dist` 孤儿分支并 push，打印 commit SHA 与 jsDelivr 地址。服务器按该 SHA 从
+jsDelivr 下载，失败用 `/var/www/site-prev` 整目录回滚。详细步骤见
+[`DEPLOY.md`](DEPLOY.md)。
+
+## 8. 视觉回归结果
+
+基线：`notes/baseline/`，5 个页面 × 1280 / 768 / 500，共 15 张。
+
+| 页面                     | 布局偏差          | 像素差异                                                      |
+| ------------------------ | ----------------- | ------------------------------------------------------------- |
+| 首页                     | 0px，滚动高度一致 | 1280 约 75 px、768 约 47 px、500 为 0；来自时钟数字与随机纹络 |
+| `posts/web-101.html`     | 0px               | 0                                                             |
+| `posts/hello-world.html` | 0px               | 0                                                             |
+| `posts/why-i-build.html` | 0px               | 0                                                             |
+| `docs/web-101.html`      | 0px               | 0                                                             |
+
+500px 下所有页面无横向溢出。首屏 JS gzip 约 42 KB、CSS gzip 约 6 KB，低于
+60 KB / 15 KB 的预算。
+
+## 9. 已知取舍
+
+- **保留 v1 的 CSS 特异性怪癖**：`#about .about-text p` 会覆盖 `.big`，导致大段落实际为
+  15.5px / 18px 行高。为 0px 漂移，v2 显式保留并在 `AboutSection.vue` 注释说明。
+- **文章正文没有改用 Uno / Typography 预设**：`v-html` 内容无法被作用域样式命中，
+  手写 `article.css` 是复刻 v1 最稳的方式。
+- **入口壳是生成物**：`posts/*.html` 带生成标记，`npm run gen` 只清理带标记的旧文件，
+  不会误删 v1 遗留页面；迁移完成后 v1 文件已删除，仓库只保留 v2 结构。
+- **照片不参与哈希**：放在 `public/assets/photos/`，发布时保留，避免每次重传大图。

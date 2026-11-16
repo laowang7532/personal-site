@@ -24,7 +24,9 @@ const cards = [
         <p
           class="big mb-[18px] max-w-[36em] text-[15.5px] font-medium leading-[1.55] tracking-[-.01em] text-ink-2"
         >
-          我做的事情，说白了就是<em class="not-italic text-orange">把复杂的东西讲清楚，再把它做出来</em>。
+          我做的事情，说白了就是<em class="not-italic text-orange"
+            >把复杂的东西讲清楚，再把它做出来</em
+          >。
         </p>
         <p class="mb-[18px] max-w-[36em] text-[15.5px] text-ink-2">
           在无人机行业做解决方案：机库统一接入、航线规划、任务调度、遥感影像处理、AI
@@ -41,7 +43,9 @@ const cards = [
           :key="card.key"
           class="card info-card reveal rounded-[14px] border border-line bg-bg-soft px-4 py-[18px]"
         >
-          <span class="card-k mb-2 block font-mono text-[10.5px] uppercase tracking-[.16em] text-orange">
+          <span
+            class="card-k mb-2 block font-mono text-[10.5px] uppercase tracking-[.16em] text-orange"
+          >
             {{ card.key }}
           </span>
           <p class="text-[13.5px] leading-[1.6] text-ink-2">{{ card.text }}</p>
