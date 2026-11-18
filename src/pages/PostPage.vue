@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import ThemeToggle from '@/components/ThemeToggle.vue'
 import ArticleToc from '@/components/article/ArticleToc.vue'
 import { getPost, postDateLabel } from '@/utils/content'
 import '@/styles/article.css'
@@ -13,6 +14,8 @@ const nextHref = computed(() =>
 </script>
 
 <template>
+  <ThemeToggle class="post-theme-toggle" />
+
   <article v-if="post" class="post-wrap">
     <a class="back" href="/index.html">← 回首页</a>
 

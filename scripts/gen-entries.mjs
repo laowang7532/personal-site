@@ -39,7 +39,6 @@ ${GEN_MARKER}
 <meta property="og:description" content="${description}">
 <meta property="og:type" content="article">
 <link rel="icon" href="${FAVICON}">
-<style>html{background:#0B0B0D}</style>
 </head>
 <body>
 <div id="app" data-page="post" data-slug="${escapeHtml(meta.slug)}"></div>

@@ -71,7 +71,7 @@
   padding: 0 24px;
 }
 
-/* 第一页：随机电影海报卡片 */
+/* 第一页：随机电影海报卡片。加载彩蛋固定深色，不随主题变化 */
 .poster-scene {
   position: absolute;
   inset: 0;
@@ -486,7 +486,7 @@ body.deck-mode {
 
 /* 后退时被盖住的当前页：整页压暗，让翻回来的纸张有落下的重量 */
 .deck-page.is-flip-under::after {
-  background: rgba(0, 0, 0, 0.42);
+  background: var(--under-shade);
   animation: deck-under-shade 720ms ease both;
 }
 
@@ -520,8 +520,8 @@ body.deck-mode {
   z-index: 5;
   background: linear-gradient(
     to right,
-    rgba(0, 0, 0, 0.72),
-    rgba(0, 0, 0, 0.24) 30%,
+    var(--flip-shade-strong),
+    var(--flip-shade-mid) 30%,
     transparent 62%
   );
   opacity: 0;
@@ -715,7 +715,7 @@ body.deck-mode {
   padding: 2px 8px;
   border: 1px solid var(--line-soft);
   border-radius: 999px;
-  background: rgba(11, 11, 13, 0.72);
+  background: var(--tooltip-bg);
   font-size: 10px;
   letter-spacing: 0.08em;
   color: var(--ink-2);
@@ -819,7 +819,7 @@ body.deck-mode {
 
 /* ---------------- Hero 描边序号 ---------------- */
 .hero-index {
-  -webkit-text-stroke: 1px var(--line);
+  -webkit-text-stroke: 1px var(--index-stroke);
 }
 
 /* ---------------- 按钮 ---------------- */
@@ -1247,7 +1247,8 @@ body.deck-mode {
   }
 }
 
-/* ---------------- 贴纸大图预览 ---------------- */
+/* ---------------- 贴纸大图预览 ----------------
+   灯箱式展示：两套主题下都保持深色卡面与深色遮罩 */
 .sticker-preview-scrim {
   position: fixed;
   inset: 0;
@@ -1718,7 +1719,7 @@ body.deck-mode {
 
 .sticker-toggle:hover {
   border-color: var(--line);
-  background: rgba(17, 17, 19, 0.55);
+  background: var(--tooltip-bg);
   transform: translateY(-1px);
 }
 

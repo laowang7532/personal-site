@@ -9,6 +9,7 @@ import { markdownPlugin } from './vite/content.ts'
 import { legacyRedirectPlugin } from './vite/legacy-redirect.ts'
 import { profileHtmlPlugin } from './vite/profile-html.ts'
 import { studioPlugin } from './vite/studio.ts'
+import { themeBootPlugin } from './vite/theme-boot.ts'
 
 const root = fileURLToPath(new URL('.', import.meta.url))
 
@@ -32,6 +33,7 @@ export default defineConfig({
   plugins: [
     vue(),
     UnoCSS(),
+    themeBootPlugin(),
     profileHtmlPlugin(root),
     markdownPlugin(),
     legacyRedirectPlugin(resolve(root, 'docs', 'web-101.html'), 'docs/web-101.html'),

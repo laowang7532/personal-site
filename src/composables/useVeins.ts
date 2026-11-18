@@ -1,4 +1,5 @@
 import { onBeforeUnmount, onMounted, watch, type Ref } from 'vue'
+import { useTheme } from '@/composables/useTheme'
 
 interface Curve {
   pts: [number, number][]
@@ -20,6 +21,7 @@ function readRgb(name: string): string {
  */
 export function useVeins(canvas: Ref<HTMLCanvasElement | null>, active: Ref<boolean>) {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const { theme } = useTheme()
 
   let ctx: CanvasRenderingContext2D | null = null
   let width = 0
@@ -165,6 +167,26 @@ export function useVeins(canvas: Ref<HTMLCanvasElement | null>, active: Ref<bool
 
   watch(active, value => {
     if (value) start()
+  })
+
+  // 主题切换后颜色变量已经变化，重新读取并按新主题重绘
+  watch(theme, () => {
+    if (!started || !ctx) return
+
+    inkRgb = readRgb('ink')
+    orangeRgb = readRgb('orange')
+    cancelAnimationFrame(frame)
+    ctx.clearRect(0, 0, width, height)
+
+    if (reduce) {
+      curves.forEach(curve => drawCurve(curve, 1))
+      return
+    }
+
+    curves.forEach(curve => {
+      curve.born = performance.now()
+    })
+    frame = requestAnimationFrame(loop)
   })
 
   onBeforeUnmount(() => {

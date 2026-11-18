@@ -3,6 +3,7 @@ import 'virtual:uno.css'
 import HomePage from '@/pages/HomePage.vue'
 import PostPage from '@/pages/PostPage.vue'
 import '@/styles/base.css'
+import '@/styles/theme.css'
 
 withDefaults(defineProps<{ page?: 'home' | 'post'; slug?: string }>(), {
   page: 'home',

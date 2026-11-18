@@ -17,6 +17,7 @@
 html {
   scroll-behavior: smooth;
   background: var(--bg);
+  accent-color: var(--orange);
 }
 
 body {
@@ -53,15 +54,22 @@ code {
   border-radius: 4px;
 }
 
-/* 极细颗粒质感 */
+/* 极细颗粒质感。z-index 需要盖过首页翻页层（.deck = 2）与顶栏（600），
+   但不能盖住光标（8000）、贴纸预览（880）和加载彩蛋（9000）。 */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
-  z-index: 1;
+  z-index: 650;
   pointer-events: none;
-  opacity: 0.035;
+  opacity: var(--grain-opacity);
+  mix-blend-mode: var(--grain-blend);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+::selection {
+  background: var(--orange);
+  color: var(--bg);
 }
 
 /* 滚动入场 */

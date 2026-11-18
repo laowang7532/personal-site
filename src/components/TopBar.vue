@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ThemeToggle from '@/components/ThemeToggle.vue'
 import { useClock } from '@/composables/useClock'
 import { useDeck } from '@/composables/useDeck'
 import { profile } from '@/utils/profile'
@@ -45,6 +46,7 @@ const links = [
           {{ link.label }}
         </a>
       </nav>
+      <ThemeToggle />
       <div class="clock font-mono text-[12px] tracking-[.06em] text-ink-3 max-sm:hidden">
         {{ time }}
       </div>

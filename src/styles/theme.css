@@ -1,0 +1,42 @@
+/* ============================================================
+   主题专属覆盖
+   能用令牌表达的颜色不放这里；这里只处理混合模式、定位等
+   无法通过变量切换的差异。
+   ============================================================ */
+
+/* difference 在浅底上会把深色字反成浅色，浅色主题改回普通叠色 */
+html[data-theme='light'] .topbar {
+  mix-blend-mode: normal;
+  color: var(--ink);
+  /* 内页滚动时内容会从顶栏下方经过，用纸色渐隐保证导航可读 */
+  background: linear-gradient(to bottom, var(--bg) 0%, transparent 100%);
+}
+
+/* 自定义光标同理：浅色下用深色实心点，放大时用橙色 */
+html[data-theme='light'] .cursor {
+  mix-blend-mode: normal;
+  background: var(--ink);
+}
+
+html[data-theme='light'] .cursor.grow {
+  background: var(--orange);
+}
+
+/* 浅底上细线的可见度比深底低，翻页导轨略提亮 */
+html[data-theme='light'] .deck-rail-caption {
+  opacity: 0.82;
+}
+
+html[data-theme='light'] .deck-rail-line {
+  opacity: 0.58;
+}
+
+/* 文章页没有顶栏，主题切换按钮固定在右上角 */
+.post-theme-toggle {
+  position: fixed;
+  top: 12px;
+  right: var(--pad);
+  z-index: 700;
+  background: var(--bg);
+  border-color: var(--line);
+}

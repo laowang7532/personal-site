@@ -29,6 +29,16 @@ npm run deploy      # 构建 + 推 dist 孤儿分支 + 打印发布 SHA
 首次 `npm run dev` / `npm run build` 前会自动执行 `npm run gen`，依据
 `src/content/posts/*.md` 生成 `posts/<slug>.html` 入口壳，不需要手写。
 
+## 方案与技术文档
+
+所有方案、决策与实施规格都留存在 `docs/`，已落地的实现说明在 `notes/`：
+
+- [方案索引](docs/README.md)：所有方案的清单、状态与关键决策速查；
+- [主题切换方案（浅色 / 深色）](docs/theme-plan.md)：令牌架构、浅色调色板、防闪烁、逐文件改动与验收；
+- [中英双语方案](docs/i18n-plan.md)：`/en/` URL、文章配对、字典、SEO、脚本与工作台改造；
+- [v2 工程化迁移方案](docs/v2-migration-plan.md)：当前 MPA 构建形态的来源；
+- 已落地技术说明：[架构](notes/ARCHITECTURE.md)、[内容工作台](notes/AUTHORING.md)、[发布](notes/DEPLOY.md)。
+
 ## 目录
 
 ```
@@ -40,11 +50,11 @@ personal-site/
 │   ├── entries/              入口脚本：home.ts / post.ts
 │   ├── pages/                HomePage.vue / PostPage.vue
 │   ├── components/           区块组件 + 动效组件 + DeckRail + article/ArticleToc.vue
-│   ├── composables/          翻页、加载动画、纹络、贴纸、滚动入场、时钟
+│   ├── composables/          翻页、加载动画、纹络、贴纸、滚动入场、时钟、主题
 │   ├── content/posts/*.md    文章唯一内容源（frontmatter + 正文）
 │   ├── content/profile.json  个人资料 / 封面 / 联系 / 页脚文案
 │   ├── content/photos.json   照片墙槽位与图库索引
-│   ├── styles/               base.css / home.css / article.css
+│   ├── styles/               base.css / theme.css / home.css / article.css
 │   ├── utils/content.ts      构建期读取 md，导出文章列表与详情
 │   ├── utils/profile.ts      资料 JSON、**强调**与换行渲染
 │   └── types/                Post / Profile / PhotoEntry 类型
@@ -55,8 +65,9 @@ personal-site/
 │   ├── snapshot.mjs          三档宽度截图
 │   └── lib/posts.mjs         构建期读取 frontmatter
 ├── public/assets/photos/     照片墙图片（构建后位于 /assets/photos/）
+├── docs/                     方案与决策记录（索引、主题、双语、v2 迁移）
 ├── notes/                    架构、部署、基线截图（不进入构建产物）
-├── vite/                     Markdown 插件、旧链接重定向、资料注入、内容工作台
+├── vite/                     Markdown 插件、旧链接重定向、资料注入、主题启动、内容工作台
 │   └── studio/               工作台页面（只在 dev 服务器提供，不进生产构建）
 ├── uno.config.ts             design tokens 唯一来源
 └── vite.config.ts            多页入口 / 插件 / 别名
@@ -118,6 +129,19 @@ link: /posts/hello-world.html # 可选，草稿指向的占位链接
 实现见 `src/composables/useDeck.ts`（状态、hash、键盘、滑动）、
 `src/components/DeckRail.vue`（右侧导航）与 `src/styles/home.css` 的 `.deck*` 规则。
 翻页过程中只有当前页与正在翻动的一页参与层叠，其余页面 `inert` 且对读屏隐藏。
+
+## 主题切换
+
+默认跟随系统 `prefers-color-scheme`。首页顶栏右侧、文章页右上角的太阳 / 月亮按钮可以手动切换，
+选择写入 `localStorage`（键名 `personal-site:theme`），之后以手动选择为准；清除站点数据会回到跟随系统。
+
+主题在首屏绘制前由 `vite/theme-boot.ts` 注入的内联脚本确定，刷新或跨页不会先闪一下另一套主题。
+深浅两套颜色都在 `uno.config.ts` 里定义并输出为 CSS 变量；组件只引用变量。浅色下顶栏与自定义光标会
+取消 `mix-blend-mode` 的反色，纸纹改用正片叠底，加载彩蛋和贴纸预览卡则固定深色。
+
+实现入口：[`src/composables/useTheme.ts`](src/composables/useTheme.ts)、
+[`src/components/ThemeToggle.vue`](src/components/ThemeToggle.vue)、
+[`src/styles/theme.css`](src/styles/theme.css)。完整设计见 [docs/theme-plan.md](docs/theme-plan.md)。
 
 ## 贴纸
 
@@ -204,8 +228,10 @@ commit SHA 与 jsDelivr 地址。服务器按这个 SHA 拉取，**禁止使用 
 ## 技术说明
 
 - 构建期解析 Markdown，markdown-it 不进入客户端 bundle。
-- UnoCSS 负责常规样式，`src/styles/` 保留 keyframes、翻页与文章正文排版。
+- UnoCSS 负责常规样式，`src/styles/` 保留 keyframes、翻页、文章正文排版与主题覆盖。
 - 每篇文章是真实 HTML 入口，跨页跳转使用 View Transitions；首页五页共用同一个入口，
   用 `useDeck` 在客户端翻页。
-- 首屏 JS gzip 约 51.8 KB、CSS gzip 约 9.2 KB；加载彩蛋海报是本地 JPEG，
+- 颜色令牌在 `uno.config.ts` 中定义深浅两套，输出为 CSS 变量；主题由 `data-theme` 切换，
+  首屏前由 Vite 插件注入的启动脚本解析，避免闪烁。
+- 首屏 JS gzip 约 53.0 KB、CSS gzip 约 10.6 KB；加载彩蛋海报是本地 JPEG，
   单次只加载随机选中的一张（约 60–81 KB）；兔子贴纸一次只请求抽中的 3 张。

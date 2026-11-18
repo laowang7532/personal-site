@@ -1,6 +1,6 @@
 # 架构说明
 
-> 状态：v2 已落地（批次 0–4）。线上仍由 WorkBuddy 定时任务发布。
+> 状态：v2 已落地（批次 0–4）；主题切换核心已落地（2026-11-18）。线上仍由 WorkBuddy 定时任务发布。
 
 ## 1. 为什么是 MPA
 
@@ -24,18 +24,19 @@ Chromium / Safari 生效，Firefox 自动降级为普通跳转。
 | `index.html`、`posts/*.html` | 极薄入口壳，只负责挂载与 SEO 元信息；`posts/*.html` 由 `scripts/gen-entries.mjs` 依据 md 生成 |
 | `src/entries/`               | 入口脚本，读取入口壳上的 `data-page` / `data-slug` 并挂载对应页面                             |
 | `src/pages/`                 | 页面级组件：`HomePage.vue`、`PostPage.vue`                                                    |
-| `src/components/`            | 可复用组件：翻页导轨、加载动画、纹络、光标、贴纸、各内容区块、文章目录                        |
-| `src/composables/`           | 有状态、有副作用的逻辑：翻页、加载、纹络、贴纸、滚动入场、时钟                                |
+| `src/components/`            | 可复用组件：翻页导轨、加载动画、纹络、光标、贴纸、主题切换、各内容区块、文章目录              |
+| `src/composables/`           | 有状态、有副作用的逻辑：翻页、加载、纹络、贴纸、滚动入场、时钟、主题                          |
 | `src/content/posts/`         | 文章正文 + frontmatter，唯一内容源                                                            |
 | `src/content/profile.json`   | 个人资料、封面、联系与页脚文案，唯一资料源                                                    |
 | `src/content/photos.json`    | 照片墙槽位与照片库索引                                                                        |
 | `src/assets/`                | 贴纸与加载海报等本地静态素材                                                                  |
-| `src/styles/`                | UnoCSS 难以覆盖的全局样式：reset、grain、keyframes、文章正文排版                              |
+| `src/styles/`                | UnoCSS 难以覆盖的全局样式：reset、grain、keyframes、文章正文排版、主题覆盖                    |
 | `src/utils/content.ts`       | 构建期读取 md，产出文章列表与详情                                                             |
 | `src/utils/profile.ts`       | 资料 JSON 导出、`**强调**` 与换行渲染                                                         |
 | `vite/content.ts`            | Markdown 构建插件：gray-matter + markdown-it + 自定义规则                                     |
 | `vite/legacy-redirect.ts`    | 原样输出 `docs/web-101.html`，避免 Vite 改写旧链接页                                          |
 | `vite/profile-html.ts`       | 把 `profile.json` 的标题与描述注入首页入口壳                                                  |
+| `vite/theme-boot.ts`         | 向所有 HTML 入口注入首屏主题启动脚本与首屏底色，避免主题闪烁                                  |
 | `vite/studio.ts`             | 仅 dev 生效的内容工作台：本地 API、原子写入、照片落盘                                         |
 | `vite/studio/`               | 工作台前端（HTML / CSS / 原生 JS），不进入生产构建                                            |
 | `scripts/`                   | 构建期工具：生成入口、新建文章、发布、截图                                                    |
@@ -68,10 +69,12 @@ Markdown 解析发生在构建期，markdown-it 不进入客户端 bundle；首�
 
 ## 4. 样式与 design tokens
 
-- `uno.config.ts` 是**唯一**的配色、字体、缓动、断点来源；`theme.colors` 与服务端渲染的
-  CSS 变量（`--ink-rgb`、`--orange-rgb`、`--line-table` 等）都由它生成。
+- `uno.config.ts` 是**唯一**的配色、字体、缓动、断点来源；深、浅两套调色板都由它定义，
+  构建时输出为 CSS 变量（`--ink-rgb`、`--orange-rgb`、`--line-table` 等）。Uno 颜色写成
+  `rgb(var(--x-rgb) / <alpha-value>)`，所以 `text-ink/60` 这类透明度工具类在两套主题下都成立。
 - 常规布局、间距、响应式用 UnoCSS 原子类；以下内容放在 `src/styles/`：
   - `base.css`：reset、border preflight、grain、`.reveal`、View Transitions、reduced-motion；
+  - `theme.css`：只放无法用变量表达的主题差异（混合模式、顶栏渐隐、文章页按钮定位）；
   - `home.css`：翻页层叠与 3D 动画、翻页导轨、加载动画、首页区块、marquee、照片墙、贴纸、光标、响应式；
   - `article.css`：v1 `post.css` 的等价迁移，作用域限定在 `.post-wrap` / `.post-body` / `.article-content`。
 - 正文排版（表格、引用、代码、`.note`、`.steps`、`.chain`）属于 `v-html` 内容，只能靠全局
@@ -186,7 +189,38 @@ npm run build
 jsDelivr 下载，失败用 `/var/www/site-prev` 整目录回滚。详细步骤见
 [`DEPLOY.md`](DEPLOY.md)。
 
-## 8. 视觉回归结果
+## 8. 主题切换（浅色 / 深色）
+
+- **令牌**：`uno.config.ts` 内定义深、浅两套调色板，构建时输出 `:root`（深色，默认）与
+  `html[data-theme='light']` 两组变量。每个颜色同时给出 `--x` 与 `--x-rgb` 两种形式；
+  Uno 颜色使用 `rgba(var(--x-rgb), <alpha-value>)`，组件无需知道当前主题。这里必须用
+  `rgba()` 的逗号语法：`--x-rgb` 是 `31,28,23`，写成 `rgb(var(--x-rgb) / <alpha-value>)`
+  会拼出 `rgb(31,28,23 / 1)` 这种非法值，整条 `color` 声明被丢弃，元素回退到继承色。
+  `color-scheme` 同步切换，原生滚动条、表单控件与 `accent-color` 会跟随。
+- **状态**：`src/composables/useTheme.ts`。优先级为
+  `localStorage['personal-site:theme']` > `prefers-color-scheme`；手动切换会写入
+  localStorage，之后不再跟随系统。监听系统主题变化（仅在用户没有手动选择时）、
+  `storage`（多标签同步）与 `pageshow`（bfcache 恢复）。
+- **防闪烁**：`vite/theme-boot.ts` 通过 `transformIndexHtml` 在 `<head>` 最前面注入一段
+  内联 IIFE，在 CSS 与模块脚本执行前设置 `<html data-theme>` 与 `theme-color`，并注入
+  首屏底色。`index.html` 与 `scripts/gen-entries.mjs` 不再各自维护固定背景样式。
+- **入口**：首页顶栏右侧与文章页右上角的 `ThemeToggle.vue`；纯图标按钮带
+  `aria-label` / `title`，键盘可操作。文章页没有顶栏，按钮用 `.post-theme-toggle` 固定定位。
+- **无法变量化的差异**：集中在 `src/styles/theme.css`。浅色下顶栏与自定义光标取消
+  `mix-blend-mode: difference`，改为普通叠色；顶栏加一层纸色渐隐，保证内页滚动时导航可读；
+  翻页导轨的说明与横线略提亮。
+- **固定深色区域**：加载彩蛋与贴纸预览卡在两种主题下都保持深色，作为「影院 / 灯箱」式视觉，
+  不做反转。
+- **颗粒质感**：`body::after` 固定在 `z-index: 650`，高于首页翻页层（2）与顶栏（600），
+  低于光标、贴纸预览和加载彩蛋。浅色用 `opacity: .1` + `mix-blend-mode: multiply`，
+  深色用 `.045` + `normal`；首屏「01」描边单独使用 `--index-stroke`。
+- **Canvas**：`useVeins` 监听主题，切换后重新读取 `--ink-rgb` / `--orange-rgb`，清空并重绘，
+  避免曲线残留旧主题颜色。
+- **成本**：新增约 1 个 composable + 1 个按钮组件与少量覆盖样式；当前首页 JS gzip 53.0 KB、
+  CSS gzip 10.6 KB，仍在 60 / 15 KB 预算内。设计与验收细节见
+  [`docs/theme-plan.md`](../docs/theme-plan.md)。
+
+## 9. 视觉回归结果
 
 基线：`notes/baseline/`，5 个页面 × 1280 / 768 / 500，共 15 张。
 
@@ -199,12 +233,17 @@ jsDelivr 下载，失败用 `/var/www/site-prev` 整目录回滚。详细步骤�
 | `docs/web-101.html`      | 0px          | 0                                                                        |
 
 1280 / 768 / 500 与 375 / 320 宽度下均无页面横向溢出；翻页页面的正文在内部
-`.deck-scroll` 中滚动。首屏 JS gzip 约 51.8 KB、CSS gzip 约 9.2 KB，低于
-60 KB / 15 KB 的预算；加载彩蛋海报为 3 张本地 JPEG（61–81 KB/张），单次只加载
-随机选中的一张。
+`.deck-scroll` 中滚动。主题切换另在 1280 / 500 / 375 截取深浅两套（输出在
+`notes/snapshots/theme-check/`，仅本地、已 gitignore）。首屏 JS gzip 约 53.0 KB、
+CSS gzip 约 10.6 KB，低于 60 KB / 15 KB 的预算；加载彩蛋海报为 3 张本地 JPEG
+（61–81 KB/张），单次只加载随机选中的一张。
 
-## 9. 已知取舍
+## 10. 已知取舍
 
+- **主题只有两个持久状态**：首次访问跟随系统，手动切换后固定为用户选择，不提供「恢复跟随系统」
+  的第三个选项。这样按钮语义简单（切换当前主题）；想回到跟随系统需清除
+  `localStorage['personal-site:theme']`。加载彩蛋与贴纸预览卡固定深色，也是有意为之，
+  不随主题反转。
 - **保留 v1 的 CSS 特异性怪癖**：`#about .about-text p` 会覆盖 `.big`，导致大段落实际为
   15.5px / 18px 行高。为 0px 漂移，v2 显式保留并在 `AboutSection.vue` 注释说明。
 - **文章正文没有改用 Uno / Typography 预设**：`v-html` 内容无法被作用域样式命中，
