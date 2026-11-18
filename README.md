@@ -1,6 +1,7 @@
 # personal-site
 
-小王同学的个人网站。Vite + Vue 3 + TypeScript + UnoCSS 多页静态站，构建产物直接丢给 Caddy。
+小王同学的个人网站。Vite + Vue 3 + TypeScript + UnoCSS 多页静态站，首页是五页翻页式书页，
+文章页保持真实 `posts/<slug>.html` 与普通滚动，构建产物直接丢给 Caddy。
 
 线上地址：<http://154.8.177.56/>
 
@@ -15,12 +16,13 @@
 ```bash
 npm ci              # 安装依赖（package-lock.json 已提交）
 npm run dev         # 开发服务器，改 md / Vue / CSS 自动热更新
+npm run studio      # 打开仅本机可用的内容工作台（/studio）
 npm run build       # 生成入口壳 + 类型检查 + 构建到 dist/
 npm run preview     # 本地预览 dist/
 npm run lint        # ESLint，零警告
 npm run format      # Prettier 格式化
 npm run new-post -- <slug> "<标题>"   # 新建文章 md
-npm run snapshot    # 三档宽度批量截图到 notes/snapshots/
+npm run snapshot    # 三档宽度截图：首页五个翻页 + 文章页，输出到 notes/snapshots/
 npm run deploy      # 构建 + 推 dist 孤儿分支 + 打印发布 SHA
 ```
 
@@ -37,12 +39,15 @@ personal-site/
 ├── src/
 │   ├── entries/              入口脚本：home.ts / post.ts
 │   ├── pages/                HomePage.vue / PostPage.vue
-│   ├── components/           区块组件 + 动效组件 + article/ArticleToc.vue
-│   ├── composables/          加载动画、纹络、贴纸、滚动入场、时钟
+│   ├── components/           区块组件 + 动效组件 + DeckRail + article/ArticleToc.vue
+│   ├── composables/          翻页、加载动画、纹络、贴纸、滚动入场、时钟
 │   ├── content/posts/*.md    文章唯一内容源（frontmatter + 正文）
+│   ├── content/profile.json  个人资料 / 封面 / 联系 / 页脚文案
+│   ├── content/photos.json   照片墙槽位与图库索引
 │   ├── styles/               base.css / home.css / article.css
 │   ├── utils/content.ts      构建期读取 md，导出文章列表与详情
-│   └── types/post.ts         Post 类型
+│   ├── utils/profile.ts      资料 JSON、**强调**与换行渲染
+│   └── types/                Post / Profile / PhotoEntry 类型
 ├── scripts/
 │   ├── gen-entries.mjs       生成文章入口壳
 │   ├── new-post.mjs          新建文章
@@ -51,7 +56,8 @@ personal-site/
 │   └── lib/posts.mjs         构建期读取 frontmatter
 ├── public/assets/photos/     照片墙图片（构建后位于 /assets/photos/）
 ├── notes/                    架构、部署、基线截图（不进入构建产物）
-├── vite/                     Markdown 构建插件、旧链接重定向插件
+├── vite/                     Markdown 插件、旧链接重定向、资料注入、内容工作台
+│   └── studio/               工作台页面（只在 dev 服务器提供，不进生产构建）
 ├── uno.config.ts             design tokens 唯一来源
 └── vite.config.ts            多页入口 / 插件 / 别名
 ```
@@ -95,16 +101,71 @@ link: /posts/hello-world.html # 可选，草稿指向的占位链接
 
 ## 照片墙
 
-图片放 `public/assets/photos/`，然后在 `src/components/PhotoWall.vue` 的 `tiles`
-里给对应格子加 `image: '/assets/photos/01.jpg'`。不填则保留内置渐变占位图。
-详见 [public/assets/photos/README.md](public/assets/photos/README.md)。
+运行 `npm run studio`，在「照片」页直接上传：浏览器会转成 WebP（长边 ≤1600px），
+再选择放进 t1–t8 哪个格子。数据写入 `src/content/photos.json`，图片落在
+`public/assets/photos/`，未选择格子的照片只留在照片库里。不填的格子继续显示内置
+渐变占位图。也可以手动把图片放进 `public/assets/photos/` 并编辑 JSON。
+
+## 首页翻页
+
+首页不再纵向滚动，而是五张全屏页：封面 → 关于 → 照片 → 博客 → 联系。点击顶栏导航、
+封面按钮或右侧竖排「翻页」导轨后，当前页绕左缘做 3D 翻页，露出下一页。地址栏同步
+`#top` / `#about` / `#photos` / `#writing` / `#contact`，可以直接分享或深链；浏览器
+前进后退可回到上一页。桌面端可用 `←` / `→`、滚轮或触控板，触屏可横向滑动；页面内容
+还能继续滚时先滚内容，滚到边界后再翻页。每页内容在视口内独立滚动，文章页仍然是普通
+文档滚动。
+
+实现见 `src/composables/useDeck.ts`（状态、hash、键盘、滑动）、
+`src/components/DeckRail.vue`（右侧导航）与 `src/styles/home.css` 的 `.deck*` 规则。
+翻页过程中只有当前页与正在翻动的一页参与层叠，其余页面 `inert` 且对读屏隐藏。
 
 ## 贴纸
 
-首页右上角的「贴纸」开关控制跟随兔子和 7 枚可拖拽贴纸（兔子 / 星星 / 花 / 爱心 /
-音符 / 火花），状态记忆在 `localStorage`。贴纸的位置、旋转与移动端隐藏规则在
-`src/composables/useStickers.ts` 的 `stickerDefs` 中调整；矢量图在
-`src/assets/stickers/`。
+首页左上角 W/H 右侧的 autumn 兔子卡片开关控制 8 枚可拖拽贴纸：3 张随机兔子 + 火花 /
+星星 / 爱心 / 音符 / 花，状态记忆在 `localStorage`。兔子每次刷新页面、每次按下开关都会
+从 9 张手绘里重新随机抽 3 张（不重复）；跟随鼠标的贴纸已经取消。
+
+每张兔子贴纸右上角有一个放大镜按钮：鼠标悬停或键盘聚焦弹出发光预览卡，深色卡面会随
+指针做左右 / 上下的 3D 起伏，背后有缓慢旋转的橙色光晕；点「翻面」或图片翻到背面，可以
+看到这张图的绘制日期（未填时显示「日期待补充」）。触屏点击打开、点遮罩或按 Esc 关闭。
+日期写在 `src/composables/useStickers.ts` 的 `rabbitPool` 里。兔子素材由作者手绘 PNG 生成
+SVG（内嵌 WebP，保留纸纹，不是矢量描摹）；后 8 张保留了原画的纸张底色并做圆角裁切，
+像一张手账贴纸。贴纸的位置、旋转与移动端隐藏规则在
+`src/composables/useStickers.ts` 的 `rabbitSlots` / `stickerDefs` 中调整；图片在
+`src/assets/stickers/`。窄屏隐藏火花、星星与第三只兔子，其余小贴纸缩到 36px 并收进
+右侧留白。
+
+## 首次进入
+
+首页每个标签页会话第一次进入时播放一次彩蛋：随机一张《爱乐之城》海报卡片
+（模糊环境光、扫光、入场与轻浮动、底部进度线）→「小王同学」→ 翻页进入首页。
+`sessionStorage` 记录已播放，`prefers-reduced-motion` 直接跳过；海报每次随机，
+并避开上一次播放的那张；手机端卡片按视口缩放，海报保持完整不裁切。实现见
+`src/components/PosterScene.vue`、`PageLoader.vue` 与
+`src/composables/usePageLoader.ts`，海报在 `src/assets/loader/`。
+
+海报素材由站点作者提供，版权归电影版权方所有；公开部署或商用前请确认使用授权。
+
+## 内容工作台
+
+```bash
+npm run studio
+```
+
+会启动 Vite 并打开 `http://127.0.0.1:5173/studio`。工作台只在开发服务器上存在，
+生产构建不包含它，也不接受非本机请求。
+
+- **文章**：列表、frontmatter 表单、Markdown 正文、新建、删除（移到 `.studio-trash/`）、
+  一键重新生成文章入口。
+- **照片**：拖拽/选择上传，浏览器端转 WebP（长边 ≤1600px，质量 0.82），再分配到
+  t1–t8 照片墙格子；未分配的留在照片库。
+- **资料**：编辑封面文案、关于段落、信息卡、联系方式和页脚；用 `**文字**` 标记橙色
+  强调。保存后 Vite 热更新，浏览器标题由 `vite/profile-html.ts` 从
+  `src/content/profile.json` 注入。
+
+所有写操作都是「临时文件 + rename」的原子写入；接口做了本机来源、路径白名单、
+slug 规则、JSON/WebP 类型与体积校验。它**没有登录鉴权**，因此不要通过
+`--host` 暴露到局域网或公网。完整设计见 [notes/AUTHORING.md](notes/AUTHORING.md)。
 
 ## 发布
 
@@ -127,15 +188,24 @@ commit SHA 与 jsDelivr 地址。服务器按这个 SHA 拉取，**禁止使用 
 - 服务器在北京，直连 GitHub 的 HTTPS 会被干扰，只能用 jsDelivr。
 - 线上只有 HTTP（443 未开放）。
 
+## 站内编辑
+
+照片上传、博客写作与个人资料编辑已经做成仅本机可访问的「内容工作台」，实现与边界
+见 [notes/AUTHORING.md](notes/AUTHORING.md)。它复用现有构建与发布链，不修改 Caddy，
+也不把编辑器暴露到公网；服务器目前不具备备案条件，公网后台不在计划内。
+
 ## 视觉基线
 
 `notes/baseline/` 是 v1 的 15 张基线截图（5 页 × 1280 / 768 / 500）。
-重构后用 `npm run snapshot` 生成 `notes/snapshots/` 对照；首页动态元素
-（时钟、随机纹络）会有少量像素差，布局应保持 0px 偏差。
+文章页与旧链接页仍应与基线 0px 对齐；首页已改为翻页式，属于预期视觉变化。
+`npm run snapshot` 会输出首页五个翻页、文章页和旧链接页的三档宽度截图到
+`notes/snapshots/`。
 
 ## 技术说明
 
 - 构建期解析 Markdown，markdown-it 不进入客户端 bundle。
-- UnoCSS 负责常规样式，`src/styles/` 保留 keyframes 与文章正文排版。
-- 每篇文章是真实 HTML 入口，跨页跳转使用 View Transitions。
-- 首屏 JS gzip 约 43.6 KB、CSS gzip 约 6.5 KB。
+- UnoCSS 负责常规样式，`src/styles/` 保留 keyframes、翻页与文章正文排版。
+- 每篇文章是真实 HTML 入口，跨页跳转使用 View Transitions；首页五页共用同一个入口，
+  用 `useDeck` 在客户端翻页。
+- 首屏 JS gzip 约 51.8 KB、CSS gzip 约 9.2 KB；加载彩蛋海报是本地 JPEG，
+  单次只加载随机选中的一张（约 60–81 KB）；兔子贴纸一次只请求抽中的 3 张。

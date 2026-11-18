@@ -19,9 +19,10 @@ function markPlayed(): void {
 }
 
 /**
- * 翻页加载动画：
- * - 同一个标签页会话只播放一次
- * - prefers-reduced-motion 直接跳过
+ * 首次进入的翻页彩蛋：
+ * - 第一页：随机电影海报卡片（模糊环境光、扫光、进度线）
+ * - 第二页：小王同学
+ * - 同一个标签页会话只播放一次；prefers-reduced-motion 直接跳过
  * - 文章页不挂载，本动画只属于首页
  */
 export function usePageLoader() {
@@ -62,12 +63,12 @@ export function usePageLoader() {
 
     schedule(() => {
       sheetAOut.value = true
-    }, 1050)
+    }, 1800)
     schedule(() => {
       sheetBOut.value = true
-    }, 1520)
-    schedule(finish, 2150)
-    schedule(finish, 5000) // 兜底
+    }, 3600)
+    schedule(finish, 4400)
+    schedule(finish, 6000) // 兜底
   })
 
   onBeforeUnmount(() => {

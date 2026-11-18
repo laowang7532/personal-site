@@ -1,13 +1,11 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import SectionHead from '@/components/SectionHead.vue'
+import { photos } from '@/utils/profile'
 
-interface Tile {
-  caption: string
-  /** 可选：/assets/photos/xxx.jpg；不填则使用内置渐变占位图 */
-  image?: string
-}
+const slots = ['t1', 't2', 't3', 't4', 't5', 't6', 't7', 't8'] as const
 
-const tiles: Tile[] = [
+const fallback = [
   { caption: '起飞前的十分钟' },
   { caption: '正射影像的另一种看法' },
   { caption: '山里没有信号' },
@@ -17,15 +15,22 @@ const tiles: Tile[] = [
   { caption: '跑完五公里的自拍' },
   { caption: '机库里的安静时刻' },
 ]
+
+const tiles = computed(() =>
+  fallback.map((tile, index) => {
+    const entry = photos.find(photo => photo.slot === slots[index])
+    return {
+      caption: entry?.caption ?? tile.caption,
+      image: entry?.src || undefined,
+    }
+  }),
+)
 </script>
 
 <template>
-  <section
-    id="photos"
-    class="section relative border-t border-line-soft px-[var(--pad)] py-[clamp(70px,11vw,140px)]"
-  >
+  <section class="section relative px-[var(--pad)] py-[clamp(70px,11vw,140px)]">
     <SectionHead num="03" title="照片墙">
-      <template #hint>把照片丢进 <code>assets/photos/</code> 就能换掉占位图</template>
+      <template #hint>在「内容工作台」上传，或把图片放进 <code>assets/photos/</code></template>
     </SectionHead>
 
     <div
@@ -33,7 +38,7 @@ const tiles: Tile[] = [
     >
       <figure
         v-for="(tile, index) in tiles"
-        :key="tile.caption"
+        :key="index"
         class="tile reveal"
         :class="`t${index + 1}`"
       >

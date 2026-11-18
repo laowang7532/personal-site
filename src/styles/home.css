@@ -3,6 +3,12 @@
    静态布局由 UnoCSS 工具类承担，这里只保留伪元素、关键帧与复杂选择器
    ============================================================ */
 
+/* 资料 JSON 里的 **强调** 统一走这个类，避免 v-html 依赖 Uno 的扫描结果 */
+.profile-em {
+  font-style: normal;
+  color: var(--orange);
+}
+
 /* ---------------- 加载：翻页 ---------------- */
 #loader {
   position: fixed;
@@ -45,8 +51,19 @@
   pointer-events: none;
 }
 
+.sheet-a {
+  background: #05070d;
+}
+
+.sheet-a::before {
+  background: linear-gradient(to bottom, transparent, #60a5fa, transparent);
+  opacity: 0.5;
+}
+
 .sheet-b {
   z-index: -1;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(37, 99, 235, 0.12), transparent 55%), var(--bg);
 }
 
 .sheet-inner {
@@ -54,18 +71,172 @@
   padding: 0 24px;
 }
 
-.loader-mark {
-  font-size: clamp(2.4rem, 7vw, 4.4rem);
-  font-weight: 600;
-  letter-spacing: -0.04em;
-  color: var(--ink);
+/* 第一页：随机电影海报卡片 */
+.poster-scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
 }
 
-.loader-mark.alt {
+.poster-ambient {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  opacity: 0.58;
+  animation: ambient-breathe 7.5s ease-in-out infinite;
+}
+
+.poster-ambient img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.18);
+  filter: blur(54px) saturate(1.25) brightness(0.62);
+  will-change: transform;
+}
+
+.poster-ambient::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 50% 44%,
+    transparent 0%,
+    rgba(3, 6, 12, 0.5) 62%,
+    rgba(3, 6, 12, 0.9) 100%
+  );
+  pointer-events: none;
+}
+
+.poster-stage {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 20px;
+  width: 100%;
+  height: 100%;
+  padding: 28px 24px;
+}
+
+.poster-float {
+  animation: poster-float 6.4s ease-in-out 900ms infinite;
+}
+
+.poster-card {
+  position: relative;
+  width: min(78vw, 46vh, 420px);
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  background: #06090f;
+  box-shadow:
+    0 32px 90px rgba(0, 0, 0, 0.68),
+    0 0 80px rgba(96, 165, 250, 0.16);
+  animation: poster-in 900ms var(--ease) both;
+}
+
+.poster-card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.poster-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+}
+
+.poster-sheen {
+  position: absolute;
+  inset: -20%;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.36) 47%,
+    rgba(255, 255, 255, 0.08) 54%,
+    transparent 67%
+  );
+  mix-blend-mode: screen;
+  pointer-events: none;
+  transform: translateX(-130%) rotate(8deg);
+  animation: poster-sheen 1500ms var(--ease) 420ms both;
+}
+
+.poster-caption {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  animation: loader-rise 700ms var(--ease) 600ms both;
+}
+
+.poster-now {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  color: rgba(242, 239, 233, 0.55);
+  text-transform: uppercase;
+}
+
+.poster-now i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--orange);
+  box-shadow: 0 0 12px rgba(234, 88, 12, 0.8);
+  animation: now-pulse 1.5s ease-in-out infinite;
+}
+
+.poster-progress {
+  display: block;
+  width: min(180px, 40vw);
+  height: 1px;
+  overflow: hidden;
+  background: rgba(242, 239, 233, 0.16);
+}
+
+.poster-progress i {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--orange);
+  animation: fill 1500ms var(--ease) 160ms forwards;
+}
+
+/* 第二页：名字 */
+.loader-kicker {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.5em;
+  color: var(--ink-3);
+  padding-left: 0.5em;
+  margin-bottom: clamp(14px, 2.4vh, 24px);
+}
+
+.loader-kicker span {
   color: var(--orange);
-  letter-spacing: 0.06em;
-  font-weight: 500;
-  font-size: clamp(1.8rem, 5vw, 3rem);
+}
+
+.loader-name-line {
+  color: var(--ink);
+  font-size: clamp(1.3rem, 5vw, 2.8rem);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
 }
 
 .loader-sub {
@@ -76,8 +247,15 @@
   text-transform: uppercase;
 }
 
+.loader-sub.zh {
+  margin-top: 16px;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: none;
+}
+
 .loader-line {
-  width: min(220px, 54vw);
+  width: min(120px, 32vw);
   height: 1px;
   background: var(--line);
   margin: 22px auto 0;
@@ -89,12 +267,111 @@
   height: 100%;
   width: 0;
   background: var(--orange);
-  animation: fill 1000ms var(--ease) forwards;
+  animation: fill 1100ms var(--ease) 1800ms forwards;
+}
+
+.loader-names > * {
+  animation: loader-rise 800ms var(--ease) both;
+}
+
+.loader-names > :nth-child(1) {
+  animation-delay: 1.5s;
+}
+
+.loader-names > :nth-child(2) {
+  animation-delay: 1.6s;
+}
+
+.loader-names > :nth-child(3) {
+  animation-delay: 1.8s;
+}
+
+.loader-names > :nth-child(4) {
+  animation-delay: 1.9s;
 }
 
 @keyframes fill {
   to {
     width: 100%;
+  }
+}
+
+@keyframes loader-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes poster-in {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.955);
+    filter: blur(7px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+}
+
+@keyframes poster-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-7px) rotate(0.35deg);
+  }
+}
+
+@keyframes poster-sheen {
+  0% {
+    opacity: 0;
+    transform: translateX(-130%) rotate(8deg);
+  }
+
+  15% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(130%) rotate(8deg);
+  }
+}
+
+@keyframes ambient-breathe {
+  0%,
+  100% {
+    opacity: 0.52;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.7;
+    transform: scale(1.03);
+  }
+}
+
+@keyframes now-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.8);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
@@ -128,6 +405,333 @@
   100% {
     opacity: 0.95;
   }
+}
+
+/* ---------------- 翻页式首页 ---------------- */
+body.deck-mode {
+  height: 100%;
+  overflow: hidden;
+}
+
+.deck {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: var(--bg);
+  perspective: 3000px;
+  perspective-origin: left center;
+}
+
+.deck-page {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--bg);
+  backface-visibility: hidden;
+  transform: rotateY(0deg);
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transition:
+    transform 720ms cubic-bezier(0.45, 0, 0.55, 1),
+    box-shadow 500ms var(--ease);
+  will-change: transform;
+}
+
+.deck-page.is-before {
+  transform: rotateY(-112deg);
+}
+
+.deck-page.is-after,
+.deck-page.is-active,
+.deck-page.is-flip-under {
+  transform: rotateY(0deg);
+}
+
+/* 翻完后停在侧边 / 下方的页面直接落位，避免在背后白跑一段过渡 */
+.deck-page.is-before,
+.deck-page.is-after {
+  transition: none;
+}
+
+/* 正在翻出的页优先于 is-before / is-after 的落位，必须排在它们之后 */
+.deck-page.is-flip-out {
+  transform: rotateY(-112deg);
+  box-shadow: 60px 0 90px var(--shadow-sheet);
+  transition:
+    transform 720ms cubic-bezier(0.45, 0, 0.55, 1),
+    box-shadow 500ms var(--ease);
+}
+
+/* 后退：上一页从左边翻回来，盖在当前页上方 */
+.deck-page.is-flip-in {
+  transform: rotateY(0deg);
+  box-shadow: 60px 0 90px var(--shadow-sheet);
+  transition:
+    transform 720ms cubic-bezier(0.3, 0.4, 0.3, 1),
+    box-shadow 500ms var(--ease);
+}
+
+.deck-page.is-flip-in::before {
+  opacity: 0.5;
+}
+
+.deck-page.is-flip-in::after {
+  animation: deck-shade-out 360ms ease both;
+}
+
+/* 后退时被盖住的当前页：整页压暗，让翻回来的纸张有落下的重量 */
+.deck-page.is-flip-under::after {
+  background: rgba(0, 0, 0, 0.42);
+  animation: deck-under-shade 720ms ease both;
+}
+
+.deck-page.is-flip-under {
+  transition: none;
+}
+
+.deck-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 6;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, var(--orange), transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.deck-page.is-flip-out::before {
+  opacity: 0.5;
+}
+
+/* 翻页时压在纸面上的阴影 */
+.deck-page::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.72),
+    rgba(0, 0, 0, 0.24) 30%,
+    transparent 62%
+  );
+  opacity: 0;
+  pointer-events: none;
+}
+
+.deck-page.is-flip-out::after {
+  animation: deck-shade-in 720ms ease both;
+}
+
+.deck.is-turning .deck-page {
+  pointer-events: none;
+}
+
+.deck.is-turning .deck-page.is-skip {
+  transition: none;
+}
+
+.deck-scroll {
+  position: relative;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-color: var(--line) transparent;
+  scrollbar-width: thin;
+}
+
+.deck-scroll::-webkit-scrollbar {
+  width: 3px;
+}
+
+.deck-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.deck-scroll::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background: var(--line);
+}
+
+/* 每一页都有自己的留白，标题不压顶栏 */
+.deck-page .section {
+  padding-top: clamp(96px, 13vh, 128px);
+  padding-bottom: clamp(56px, 9vh, 96px);
+}
+
+.deck-page.is-active .deck-scroll > * {
+  animation: deck-settle 620ms var(--ease) both;
+}
+
+/* 后退翻回来的页由纸面本身完成入场，不再叠加内容淡入 */
+.deck-page.is-flip-in .deck-scroll > *,
+.deck-page.is-back-landed .deck-scroll > * {
+  animation: none;
+}
+
+/* 联系页内容较少时，把页脚压到页面底部 */
+.deck-page.is-contact .deck-scroll {
+  display: flex;
+  flex-direction: column;
+}
+
+.deck-page.is-contact .section {
+  flex: 1 0 auto;
+}
+
+@keyframes deck-shade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes deck-shade-out {
+  from {
+    opacity: 0.35;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes deck-under-shade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes deck-settle {
+  from {
+    opacity: 0.3;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------------- 右侧翻页导航 ---------------- */
+.deck-rail {
+  position: fixed;
+  top: 45%;
+  right: max(6px, calc(var(--pad) * 0.18));
+  z-index: 560;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transform: translateY(-50%);
+}
+
+.deck-rail-caption {
+  align-self: flex-end;
+  margin: 0 15px 8px 0;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  color: var(--ink-3);
+  writing-mode: vertical-rl;
+  opacity: 0.68;
+  user-select: none;
+}
+
+.deck-rail-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.25s;
+}
+
+.deck-rail-item:hover,
+.deck-rail-item:focus-visible {
+  color: var(--ink-2);
+}
+
+.deck-rail-item:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: -6px;
+}
+
+.deck-rail-item.is-active {
+  color: var(--ink);
+}
+
+.deck-rail-line {
+  width: 16px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.45;
+  transition:
+    width 0.3s var(--ease),
+    opacity 0.25s,
+    background 0.25s;
+}
+
+.deck-rail-item:hover .deck-rail-line {
+  opacity: 0.75;
+}
+
+.deck-rail-item.is-active .deck-rail-line {
+  width: 32px;
+  background: var(--orange);
+  opacity: 1;
+}
+
+.deck-rail-label {
+  position: absolute;
+  right: calc(100% + 8px);
+  padding: 2px 8px;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  background: rgba(11, 11, 13, 0.72);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--ink-2);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(4px);
+  transition:
+    opacity 0.2s,
+    transform 0.2s var(--ease);
+}
+
+.deck-rail-item:hover .deck-rail-label,
+.deck-rail-item:focus-visible .deck-rail-label {
+  opacity: 1;
+  transform: none;
 }
 
 /* ---------------- 背景纹络 ---------------- */
@@ -176,6 +780,22 @@
   background: var(--ink);
 }
 
+/* ---------------- 顶栏：翻到内页后显示导航 ---------------- */
+.topbar-nav {
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+  transition:
+    opacity 0.5s var(--ease),
+    transform 0.5s var(--ease);
+}
+
+.topbar-nav.is-visible {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
 /* ---------------- 顶栏导航下划线 ---------------- */
 .nav-link::after {
   content: '';
@@ -188,8 +808,13 @@
   transition: width 0.28s var(--ease);
 }
 
-.nav-link:hover::after {
+.nav-link:hover::after,
+.nav-link.is-active::after {
   width: 100%;
+}
+
+.nav-link.is-active {
+  color: var(--ink);
 }
 
 /* ---------------- Hero 描边序号 ---------------- */
@@ -249,11 +874,18 @@
 }
 
 .marquee-track {
-  display: inline-flex;
+  display: flex;
+  width: max-content;
+  animation: slide 34s linear infinite;
+  will-change: transform;
+}
+
+.marquee-group {
+  display: flex;
+  flex: none;
   align-items: center;
   gap: 34px;
   padding-left: 34px;
-  animation: slide 42s linear infinite;
 }
 
 .marquee-track span {
@@ -268,9 +900,27 @@
   font-size: 13px;
 }
 
+/* 6 组完全重复的内容，每次正好移动 1 组；下一组接上，循环无缝 */
 @keyframes slide {
   to {
-    transform: translateX(-50%);
+    transform: translateX(-16.6667%);
+  }
+}
+
+@media (max-width: 640px) {
+  .marquee {
+    padding: 13px 0;
+  }
+
+  .marquee-group {
+    gap: 24px;
+    padding-left: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
   }
 }
 
@@ -438,6 +1088,10 @@
 
 .sticker {
   position: absolute;
+  top: var(--sticker-top, auto);
+  right: var(--sticker-right, auto);
+  bottom: var(--sticker-bottom, auto);
+  left: var(--sticker-left, auto);
   width: 78px;
   height: 78px;
   pointer-events: auto;
@@ -456,13 +1110,24 @@
   transform: scale(1.12) rotate(0deg) !important;
 }
 
-.sticker svg {
+.sticker-image,
+.sticker-vector,
+.sticker-vector svg {
   display: block;
   width: 100%;
   height: 100%;
 }
 
-.sticker.wiggle svg {
+.sticker-image,
+.sticker-vector {
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.sticker.wiggle svg,
+.sticker.wiggle .sticker-image {
   animation: wiggle 0.6s ease;
 }
 
@@ -488,6 +1153,493 @@
 .sticker.small {
   width: 54px;
   height: 54px;
+}
+
+/* ---------------- 兔子贴纸 ---------------- */
+.sticker.rabbit-sticker {
+  width: var(--sticker-size, 82px);
+  height: var(--sticker-size, 82px);
+}
+
+.sticker.rabbit-sticker .sticker-image {
+  animation: sticker-drop 560ms cubic-bezier(0.22, 0.8, 0.24, 1) both;
+  animation-delay: var(--sticker-delay, 0ms);
+}
+
+@keyframes sticker-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-9px) scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 右上角的放大预览按钮，平时藏着，悬停贴纸才浮出来 */
+.sticker-peek {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 23px;
+  height: 23px;
+  padding: 0;
+  border: 1px solid rgba(24, 19, 14, 0.16);
+  border-radius: 50%;
+  background: #f7f1e4;
+  color: #3b332b;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.32);
+  cursor: zoom-in;
+  opacity: 0;
+  transform: scale(0.72) rotate(10deg);
+  transition:
+    opacity 0.2s,
+    transform 0.26s var(--ease),
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* 把触摸热区扩到 ~41px，视觉上仍是小圆点 */
+.sticker-peek::after {
+  content: '';
+  position: absolute;
+  inset: -9px;
+  border-radius: 50%;
+}
+
+.sticker:hover .sticker-peek,
+.sticker:focus-within .sticker-peek,
+.sticker-peek:focus-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.sticker-peek:hover {
+  border-color: var(--orange);
+  background: var(--orange);
+  color: #fff;
+}
+
+.sticker-peek:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
+}
+
+.sticker-peek svg {
+  display: block;
+  width: 12px;
+  height: 12px;
+}
+
+/* 没有 hover 的设备上让按钮一直可见，避免预览入口藏起来 */
+@media (hover: none) {
+  .sticker-peek {
+    opacity: 0.94;
+    transform: none;
+  }
+}
+
+/* ---------------- 贴纸大图预览 ---------------- */
+.sticker-preview-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 880;
+  background: rgba(7, 6, 5, 0.58);
+  backdrop-filter: blur(6px) saturate(0.9);
+  -webkit-backdrop-filter: blur(6px) saturate(0.9);
+}
+
+.sticker-preview-aura {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 885;
+  width: min(440px, calc(100vw - 10px));
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 20deg,
+    rgba(255, 122, 40, 0) 0deg,
+    rgba(255, 122, 40, 0.62) 62deg,
+    rgba(255, 214, 160, 0.78) 118deg,
+    rgba(255, 122, 40, 0) 178deg,
+    rgba(255, 150, 70, 0.5) 252deg,
+    rgba(255, 196, 128, 0.72) 318deg,
+    rgba(255, 122, 40, 0) 360deg
+  );
+  filter: blur(38px) saturate(1.5);
+  opacity: 0.78;
+  transform: translate(-50%, -50%);
+  animation: preview-aura 9s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes preview-aura {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+.sticker-preview-card {
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  --glow-x: 50%;
+  --glow-y: 30%;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 890;
+  width: min(360px, calc(100vw - 40px));
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  transform: translate(-50%, -50%) perspective(1100px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y))
+    scale(1);
+  transition: transform 0.2s ease-out;
+  will-change: transform;
+}
+
+.sticker-preview-flipper {
+  position: relative;
+  transform: perspective(1200px) rotateY(0deg);
+  transform-style: preserve-3d;
+  transition: transform 0.62s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.sticker-preview-card.is-flipped .sticker-preview-flipper {
+  transform: perspective(1200px) rotateY(180deg);
+}
+
+.sticker-preview-face {
+  position: relative;
+  padding: 12px;
+  border: 1px solid rgba(245, 226, 200, 0.16);
+  border-radius: 22px;
+  background:
+    radial-gradient(130% 80% at 88% 0%, rgba(255, 158, 63, 0.16), transparent 58%),
+    linear-gradient(160deg, #24201c, #0f0e0d);
+  box-shadow:
+    0 40px 100px rgba(0, 0, 0, 0.66),
+    0 0 70px rgba(255, 130, 50, 0.16),
+    0 1px 0 rgba(255, 255, 255, 0.06) inset;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* 跟着鼠标走的暖光，让卡面有被手电扫过的质感 */
+.sticker-preview-face::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    300px circle at var(--glow-x) var(--glow-y),
+    rgba(255, 190, 120, 0.16),
+    transparent 62%
+  );
+  pointer-events: none;
+}
+
+.sticker-preview-front {
+  position: relative;
+}
+
+.sticker-preview-back {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transform: rotateY(180deg);
+  background:
+    radial-gradient(110% 85% at 20% 0%, rgba(255, 158, 63, 0.18), transparent 58%),
+    linear-gradient(160deg, #28221c, #0d0c0b);
+  cursor: pointer;
+}
+
+.sticker-preview-back::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 0;
+  width: min(58%, 210px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(255, 186, 120, 0.16);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.sticker-preview-art {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  min-height: 180px;
+  padding: 10px;
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 50% 38%, rgba(255, 214, 160, 0.1), transparent 62%), #141210;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.sticker-preview-art img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: min(52vh, 360px);
+  border-radius: 10px;
+  user-select: none;
+  filter: drop-shadow(0 18px 32px rgba(0, 0, 0, 0.45));
+  -webkit-user-drag: none;
+  animation: preview-rise 380ms 40ms var(--ease) both;
+}
+
+@keyframes preview-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.sticker-preview-meta {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 7px 3px;
+}
+
+.sticker-preview-label {
+  color: var(--ink);
+  font-size: 14px;
+  letter-spacing: 0.06em;
+}
+
+.sticker-preview-label::before {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: var(--orange);
+  vertical-align: 2px;
+}
+
+.sticker-preview-latin {
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.sticker-preview-side {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.sticker-preview-flip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 9px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--ink-2);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    color 0.2s;
+}
+
+.sticker-preview-flip:hover {
+  border-color: var(--orange);
+  background: var(--orange);
+  color: #fff;
+}
+
+.sticker-preview-flip:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
+}
+
+.sticker-preview-flip svg {
+  width: 12px;
+  height: 12px;
+  transition: transform 0.35s var(--ease);
+}
+
+.sticker-preview-flip:hover svg {
+  transform: rotate(180deg);
+}
+
+.sticker-preview-flip.is-back {
+  width: auto;
+  height: auto;
+  margin-top: 2px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+}
+
+.sticker-preview-flip.is-back:hover {
+  transform: none;
+}
+
+.sticker-back-kicker,
+.sticker-back-date,
+.sticker-back-empty,
+.sticker-back-rule,
+.sticker-back-label,
+.sticker-back-hint,
+.sticker-preview-flip.is-back {
+  position: relative;
+  z-index: 1;
+}
+
+.sticker-back-kicker {
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.34em;
+}
+
+.sticker-back-date {
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: clamp(24px, 7vw, 34px);
+  line-height: 1.15;
+  letter-spacing: 0.05em;
+}
+
+.sticker-back-empty {
+  color: var(--ink-2);
+  font-size: 14px;
+  letter-spacing: 0.14em;
+}
+
+.sticker-back-rule {
+  width: 34px;
+  height: 1px;
+  background: var(--orange);
+  opacity: 0.8;
+}
+
+.sticker-back-label {
+  color: var(--ink-2);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+}
+
+.sticker-back-hint {
+  margin-top: 6px;
+  color: var(--ink-3);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+}
+
+.sticker-preview-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 50%;
+  background: rgba(12, 10, 9, 0.62);
+  color: var(--ink-2);
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition:
+    background 0.2s,
+    color 0.2s,
+    transform 0.25s var(--ease);
+}
+
+.sticker-preview-close:hover {
+  background: var(--orange);
+  color: #fff;
+  transform: rotate(90deg);
+}
+
+.sticker-preview-close:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
+}
+
+.sticker-preview-close svg {
+  width: 12px;
+  height: 12px;
+}
+
+.preview-fade-enter-active {
+  transition: opacity 0.25s ease;
+}
+
+.preview-fade-leave-active {
+  transition: opacity 0.18s ease;
+}
+
+.preview-fade-enter-from,
+.preview-fade-leave-to {
+  opacity: 0;
+}
+
+.preview-pop-enter-active {
+  transition:
+    opacity 0.24s ease,
+    transform 0.34s cubic-bezier(0.2, 0.9, 0.25, 1);
+}
+
+.preview-pop-leave-active {
+  transition:
+    opacity 0.16s ease,
+    transform 0.16s ease;
+}
+
+.preview-pop-enter-from,
+.preview-pop-leave-to {
+  opacity: 0;
+  transform: translate(-50%, calc(-50% + 10px)) perspective(1100px) rotateX(0deg) rotateY(0deg)
+    scale(0.94);
 }
 
 /* 兔子耳朵偶尔抖一下 */
@@ -536,129 +1688,106 @@
   }
 }
 
-#rabbit-follow {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 510;
-  width: 62px;
-  height: 68px;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.5s;
-  filter: drop-shadow(0 10px 20px var(--shadow-rabbit));
-  will-change: transform;
-}
-
-#rabbit-follow svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
 /* ---------------- 贴纸开关 ---------------- */
 .sticker-toggle {
   position: fixed;
-  top: 70px;
-  right: 20px;
+  top: 10px;
+  right: auto;
   bottom: auto;
-  left: auto;
+  left: calc(var(--pad) + 44px);
   z-index: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  padding: 6px 11px 6px 8px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: rgba(17, 17, 19, 0.82);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.32);
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: transparent;
   color: var(--ink-2);
-  font-family: var(--font-mono);
-  font-size: 10px;
-  line-height: 1;
-  letter-spacing: 0.16em;
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
   transition:
+    background 0.25s,
     border-color 0.25s,
-    color 0.25s,
     transform 0.25s var(--ease);
 }
 
 .sticker-toggle:hover {
-  color: var(--ink);
-  border-color: rgba(242, 239, 233, 0.24);
+  border-color: var(--line);
+  background: rgba(17, 17, 19, 0.55);
   transform: translateY(-1px);
 }
 
 .sticker-toggle:focus-visible {
   outline: 2px solid var(--orange);
-  outline-offset: 3px;
+  outline-offset: 2px;
 }
 
-.sticker-toggle-icon {
+.sticker-toggle::after {
+  content: '';
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--bg);
+  border-radius: 50%;
+  background: var(--orange);
+  opacity: 0;
+  transform: scale(0.5);
+  transition:
+    opacity 0.2s,
+    transform 0.25s var(--ease);
+}
+
+.sticker-toggle[aria-checked='true']::after {
+  opacity: 1;
+  transform: none;
+}
+
+.sticker-toggle-art {
   display: block;
-  width: 21px;
-  height: 21px;
+  width: 32px;
+  height: 36px;
+  border-radius: 5px;
+  object-fit: cover;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.38));
   transition:
     filter 0.25s,
-    opacity 0.25s;
+    opacity 0.25s,
+    transform 0.25s var(--ease);
 }
 
-.sticker-toggle-icon svg {
-  display: block;
-  width: 100%;
-  height: 100%;
+.sticker-toggle:hover .sticker-toggle-art {
+  transform: scale(1.08) rotate(-4deg);
 }
 
-.sticker-toggle-label {
-  padding-top: 1px;
-}
-
-.sticker-toggle-track {
-  position: relative;
-  width: 28px;
-  height: 16px;
-  border-radius: 999px;
-  background: var(--line);
-  box-shadow: inset 0 0 0 1px rgba(242, 239, 233, 0.04);
-  transition: background 0.25s;
-}
-
-.sticker-toggle-thumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--ink-3);
-  transition:
-    transform 0.25s var(--ease),
-    background 0.25s;
-}
-
-.sticker-toggle[aria-checked='true'] .sticker-toggle-track {
-  background: var(--orange-soft);
-  box-shadow: inset 0 0 0 1px rgba(234, 88, 12, 0.42);
-}
-
-.sticker-toggle[aria-checked='true'] .sticker-toggle-thumb {
-  background: var(--orange);
-  transform: translateX(12px);
-}
-
-.sticker-toggle[aria-checked='false'] .sticker-toggle-icon {
-  filter: grayscale(1);
-  opacity: 0.45;
+.sticker-toggle[aria-checked='false'] .sticker-toggle-art {
+  filter: grayscale(1) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.28));
+  opacity: 0.35;
 }
 
 /* ---------------- 响应式 ---------------- */
+@media (max-width: 900px) {
+  /* 给右侧翻页导轨留出可点击的空隙 */
+  .deck-page .section,
+  .deck-page .hero {
+    padding-right: calc(var(--pad) + 22px);
+  }
+
+  /* 小贴纸缩到右侧留白里，避免压住正文 */
+  .sticker.small {
+    right: 2px;
+    left: auto;
+    width: 36px;
+    height: 36px;
+  }
+}
+
 @media (max-width: 1024px) {
   .t1 {
     grid-column: span 2;
@@ -676,42 +1805,114 @@
     height: 62px;
   }
 
-  #rabbit-follow {
-    display: none;
+  .sticker.rabbit-sticker {
+    width: calc(var(--sticker-size, 82px) * 0.8);
+    height: calc(var(--sticker-size, 82px) * 0.8);
   }
 }
 
 @media (max-width: 640px) {
+  .poster-stage {
+    gap: 16px;
+    padding: 22px 16px;
+  }
+
+  .poster-ambient img {
+    filter: blur(42px) saturate(1.2) brightness(0.6);
+  }
+
+  .poster-now {
+    font-size: 8px;
+    letter-spacing: 0.28em;
+  }
+
+  .poster-progress {
+    width: min(150px, 44vw);
+  }
+
   .sticker {
     width: 48px;
     height: 48px;
   }
 
-  .sticker.small {
-    width: 42px;
-    height: 42px;
+  /* 小屏留兔子 + 爱心 / 音符 / 花，隐藏火花与星星 */
+  .sticker.is-spark,
+  .sticker.is-star {
+    display: none;
   }
 
-  /* 小屏留一枚兔子 + 星星 / 花 / 爱心 / 音符 */
-  .sticker:nth-child(2),
-  .sticker:nth-child(3) {
+  /* 兔子缩进右侧留白，避开翻页导轨；第三只在小屏收起来 */
+  .sticker.rabbit-sticker {
+    right: 46px;
+    width: 46px;
+    height: 46px;
+  }
+
+  .rabbit-slot-3 {
     display: none;
   }
 
   .sticker-toggle {
-    top: 70px;
-    right: 14px;
-    gap: 7px;
-    padding: 5px 9px 5px 6px;
+    top: 10px;
+    left: calc(var(--pad) + 42px);
   }
 
-  .sticker-toggle-label {
+  .sticker-toggle-art {
+    width: 28px;
+    height: 32px;
+  }
+
+  .deck-rail {
+    right: 2px;
+  }
+
+  .deck-rail-item {
+    width: 40px;
+    height: 40px;
+  }
+
+  .deck-rail-label {
     display: none;
+  }
+
+  .deck-page .section,
+  .deck-page .hero {
+    padding-right: calc(var(--pad) + 20px);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .rabbit-ear {
     animation: none;
+  }
+
+  .sticker.rabbit-sticker .sticker-image,
+  .sticker-preview-art img {
+    animation: none;
+  }
+
+  .sticker-preview-aura {
+    animation: none;
+  }
+
+  .sticker-preview-card {
+    transition: none;
+  }
+
+  .sticker-preview-flipper {
+    transition-duration: 1ms;
+  }
+
+  .poster-float,
+  .poster-card,
+  .poster-sheen,
+  .poster-ambient,
+  .poster-caption,
+  .poster-now i {
+    animation: none;
+  }
+
+  .poster-progress i {
+    width: 100%;
   }
 }

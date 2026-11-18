@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>内容工作台 · W / H</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23EA580C'/%3E%3Ccircle cx='16' cy='17' r='6' fill='%23F2EFE9'/%3E%3Ccircle cx='9' cy='9' r='3.4' fill='%23F2EFE9'/%3E%3Ccircle cx='23' cy='9' r='3.4' fill='%23F2EFE9'/%3E%3Ccircle cx='14' cy='16' r='1.1' fill='%230B0B0D'/%3E%3Ccircle cx='18' cy='16' r='1.1' fill='%230B0B0D'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="/studio/style.css" />
+  </head>
+  <body>
+    <header class="top">
+      <div class="brand">
+        <span class="mark">W<span class="slash">/</span>H</span>
+        <span class="brand-text">内容工作台</span>
+      </div>
+      <div class="top-actions">
+        <span class="local">仅本机 · 127.0.0.1</span>
+        <a class="site-link" href="/" target="_blank" rel="noopener">打开站点 ↗</a>
+      </div>
+    </header>
+
+    <nav class="tabs" aria-label="内容类型">
+      <button type="button" class="tab is-active" data-tab="posts">文章</button>
+      <button type="button" class="tab" data-tab="photos">照片</button>
+      <button type="button" class="tab" data-tab="profile">资料</button>
+    </nav>
+
+    <main id="view" class="view" aria-live="polite">
+      <div class="loading">正在读取仓库内容…</div>
+    </main>
+
+    <footer class="foot">
+      写入会直接修改仓库文件。构建与发布仍走
+      <code>npm run build</code> / <code>npm run deploy</code>，WorkBuddy 保持暂停。
+    </footer>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="/studio/client.js"></script>
+  </body>
+</html>

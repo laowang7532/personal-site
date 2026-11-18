@@ -1,6 +1,7 @@
 dist
 node_modules
 package-lock.json
+.studio-trash
 notes/baseline
 src/content/posts
 posts

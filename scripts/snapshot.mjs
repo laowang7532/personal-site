@@ -1,5 +1,6 @@
 /**
  * 对 dist/ 做三档宽度的基线截图，输出到 notes/snapshots/。
+ * 首页会额外截取关于 / 照片 / 博客 / 联系四个翻页，文章页照常。
  * 需要先 npm run build。
  *
  * 用法：npm run snapshot
@@ -116,8 +117,8 @@ try {
       const url = `http://127.0.0.1:${port}${item.path}`
       try {
         await page.goto(url, { waitUntil: 'networkidle0', timeout: 30_000 })
-        // 等翻页动画结束（最长 2.15s + 淡出）
-        await new Promise(resolve => setTimeout(resolve, 4200))
+        // 等首次彩蛋（4.4s）、翻页与首屏入场结束
+        await new Promise(resolve => setTimeout(resolve, 6000))
         const metrics = await page.evaluate(() => ({
           title: document.title,
           scrollWidth: document.documentElement.scrollWidth,
@@ -138,6 +139,25 @@ try {
             file: file.replace(root + sep, ''),
           }),
         )
+
+        // 首页是翻页式：封面截图后，再依次记录四个内页
+        if (item.name === 'home') {
+          for (const id of ['about', 'photos', 'writing', 'contact']) {
+            await page.evaluate(hash => {
+              window.location.hash = hash
+            }, id)
+            await new Promise(resolve => setTimeout(resolve, 1100))
+            const deckFile = join(outDir, `home-${id}-${width}.png`)
+            await page.screenshot({ path: deckFile })
+            console.log(
+              JSON.stringify({
+                page: `home-${id}`,
+                width,
+                file: deckFile.replace(root + sep, ''),
+              }),
+            )
+          }
+        }
       } catch (error) {
         failed = true
         console.error(`✗ ${item.name} @ ${width}: ${error.message}`)

@@ -2,6 +2,14 @@
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 const SELECTOR = 'a, button, .tile, .sticker'
+/** 小圆点按钮不放大光标，否则光学差会把按钮整个盖住 */
+const KEEP_SMALL = '.sticker-peek, .sticker-preview-close'
+
+function shouldGrow(target: EventTarget | null): boolean {
+  const element = target instanceof Element ? target : null
+  if (!element || element.closest(KEEP_SMALL)) return false
+  return Boolean(element.closest(SELECTOR))
+}
 
 const cursor = ref<HTMLElement | null>(null)
 const visible = ref(false)
@@ -22,13 +30,11 @@ function onMove(event: MouseEvent): void {
 }
 
 function onOver(event: MouseEvent): void {
-  const target = event.target as Element | null
-  grow.value = Boolean(target?.closest(SELECTOR))
+  grow.value = shouldGrow(event.target)
 }
 
 function onOut(event: MouseEvent): void {
-  const next = event.relatedTarget as Element | null
-  grow.value = Boolean(next?.closest(SELECTOR))
+  grow.value = shouldGrow(event.relatedTarget)
 }
 
 function follow(): void {

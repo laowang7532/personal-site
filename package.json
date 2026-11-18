@@ -11,6 +11,7 @@
     "gen": "node scripts/gen-entries.mjs",
     "predev": "npm run gen",
     "dev": "vite",
+    "studio": "npm run gen && vite --open /studio",
     "prebuild": "npm run gen",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",

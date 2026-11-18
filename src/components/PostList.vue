@@ -4,10 +4,7 @@ import { allPosts, postDateLabel, postHref } from '@/utils/content'
 </script>
 
 <template>
-  <section
-    id="writing"
-    class="section relative border-t border-line-soft px-[var(--pad)] py-[clamp(70px,11vw,140px)]"
-  >
+  <section class="section relative px-[var(--pad)] py-[clamp(70px,11vw,140px)]">
     <SectionHead num="04" title="博客">
       <template #hint>慢慢写，不追热点</template>
     </SectionHead>
