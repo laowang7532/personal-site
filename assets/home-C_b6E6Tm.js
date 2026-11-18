@@ -1,0 +1,1 @@
+import{n as e,t}from"./App-BiSxkaLa.js";e(t,{page:`home`}).mount(`#app`);

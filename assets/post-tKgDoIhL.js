@@ -1,0 +1,1 @@
+import{n as e,t}from"./App-BiSxkaLa.js";var n=document.querySelector(`#app`),r=n?.dataset.slug??``;e(t,{page:`post`,slug:r}).mount(n??`#app`);
